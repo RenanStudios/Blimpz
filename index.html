@@ -1171,7 +1171,7 @@
         // ══════════════════════════════════════════════════════════
         // CONSTANTS & STATE
         // ══════════════════════════════════════════════════════════
-        const S = { MENU: 0, PLAYING: 1, GAMEOVER: 2 };
+        const S = { MENU: 0, PLAYING: 1, CRASHING: 3, GAMEOVER: 2 };
         let state = S.MENU;
         let score = 0, kills = 0, shotsFired = 0, shotsHit = 0;
         let hp = 100, maxHp = 100;
@@ -1705,6 +1705,7 @@
         }
         function restartGame() {
             document.getElementById('gowindow').style.display = 'none';
+            player = null; // ensure clean state
             startGame();
         }
         function nextWave() {
@@ -1717,18 +1718,192 @@
             timeOfDay = ((wave * .17) % 1);
             updateHUD();
         }
+        // ── CRASH SEQUENCE STATE ──
+        const crashState = {
+            time: 0,
+            totalDuration: 4.2,   // seconds until game-over menu
+            startPos: null,
+            startRot: null,
+            groundY: -22,         // y where "ground" is for dramatic purposes
+            smokeTimer: 0,
+            fireTimer: 0,
+            exploded: false,
+            camStartPos: null,
+            camStartLook: null,
+        };
+
+        // Cel-shaded smoke puff
+        function spawnSmokePuff(pos, size, col) {
+            const m = new THREE.Mesh(
+                G.sphere,
+                new THREE.MeshLambertMaterial({ color: col, flatShading: true, transparent: true, opacity: .82 })
+            );
+            m.scale.setScalar(size);
+            m.position.copy(pos);
+            m.position.x += (Math.random() - .5) * 1.5;
+            m.position.y += (Math.random() - .5) * 1.2;
+            const vel = new THREE.Vector3((Math.random() - .5) * .4, .18 + Math.random() * .35, (Math.random() - .5) * .2);
+            scene.add(m);
+            particles.push({ mesh: m, vel, rot: new THREE.Vector3(0, 0, .02), life: 1.8, isSmoke: true, initSize: size });
+        }
+
+        // Cel-shaded fire chunk
+        function spawnFireChunk(pos, size) {
+            const fireCols = [0xff2200, 0xff6600, 0xffaa00, 0xffdd00];
+            const col = fireCols[Math.floor(Math.random() * fireCols.length)];
+            const m = new THREE.Mesh(
+                G.oct,
+                new THREE.MeshLambertMaterial({ color: col, flatShading: true, transparent: true, opacity: .95 })
+            );
+            m.scale.setScalar(size);
+            m.position.copy(pos);
+            const vel = new THREE.Vector3((Math.random() - .5) * 2.5, .8 + Math.random() * 2.2, (Math.random() - .5) * 1.5);
+            const rot = new THREE.Vector3(Math.random() * .3, Math.random() * .3, Math.random() * .3);
+            scene.add(m);
+            particles.push({ mesh: m, vel, rot, life: 1.0 + Math.random() * .5 });
+        }
+
         function gameOver() {
-            state = S.GAMEOVER;
-            createExplosion(player.position, 0xff4400, 80); sfxExplode(2.5);
-            scene.remove(player);
+            // Hide gameplay HUD immediately
             document.getElementById('hud').style.display = 'none';
             document.getElementById('xhair').style.display = 'none';
             document.getElementById('pubar').style.display = 'none';
-            document.getElementById('go-score').textContent = score;
-            document.getElementById('go-kills').textContent = kills;
-            document.getElementById('go-wave').textContent = wave;
-            document.getElementById('go-acc').textContent = (shotsFired > 0 ? Math.round(shotsHit / shotsFired * 100) : 0) + '%';
-            document.getElementById('gowindow').style.display = 'block';
+
+            // Disable all shooting / enemy interaction
+            bullets.forEach(b => scene.remove(b.mesh)); bullets = [];
+            eBullets.forEach(b => scene.remove(b.mesh)); eBullets = [];
+            enemies.forEach(e => scene.remove(e)); enemies = [];
+
+            // Init crash state
+            crashState.time = 0;
+            crashState.exploded = false;
+            crashState.smokeTimer = 0;
+            crashState.fireTimer = 0;
+            crashState.startPos = player.position.clone();
+            crashState.startRot = player.rotation.clone();
+            crashState.camStartPos = camera.position.clone();
+
+            // Initial hit explosion + sounds
+            createExplosion(player.position, 0xff6600, 18);
+            sfxExplode(1.0);
+
+            state = S.CRASHING;
+        }
+
+        function updateCrashing(dt) {
+            crashState.time += dt;
+            const t = crashState.time;
+            const dur = crashState.totalDuration;
+
+            // ── 1. Move the blimp downward + tumble ──
+            if (!crashState.exploded) {
+                const fallSpeed = 3.5 + t * 6;
+                player.position.y -= fallSpeed * dt;
+                // Tumble forward and sideways
+                player.rotation.z += dt * (1.2 + t * .8);
+                player.rotation.x += dt * (0.6 + t * .4);
+                // Drift slightly sideways
+                player.position.x += Math.sin(t * 2.1) * dt * 0.8;
+                // Prop still spinning (visual detail)
+                const prop = player.getObjectByName('prop');
+                if (prop) prop.rotation.z += 8 * dt;
+
+                // Smoke trail continuously
+                crashState.smokeTimer -= dt;
+                if (crashState.smokeTimer <= 0) {
+                    crashState.smokeTimer = .06 + Math.random() * .04;
+                    const smokeSz = 1.2 + t * .6;
+                    // Dark smoke
+                    spawnSmokePuff(player.position, smokeSz, new THREE.Color().setHSL(0, 0, .18 + Math.random() * .15));
+                    // Orange-tinted smoke near start
+                    if (t < 1.5) spawnSmokePuff(player.position, smokeSz * .7, new THREE.Color(0.9, 0.35, 0.05));
+                }
+
+                // Fire chunks
+                crashState.fireTimer -= dt;
+                if (crashState.fireTimer <= 0) {
+                    crashState.fireTimer = .08 + Math.random() * .07;
+                    spawnFireChunk(player.position, .6 + Math.random() * .9);
+                    if (t > 1.0) spawnFireChunk(player.position, .4 + Math.random() * .5); // more fire later
+                }
+
+                // ── 2. Ground impact ──
+                if (player.position.y <= crashState.groundY) {
+                    crashState.exploded = true;
+                    player.position.y = crashState.groundY;
+
+                    // Big cel-shaded fireball explosion
+                    for (let r = 0; r < 4; r++) {
+                        const delay = r * 90;
+                        setTimeout(() => {
+                            const p = player ? player.position.clone() : new THREE.Vector3(crashState.startPos.x, crashState.groundY, crashState.startPos.z);
+                            createExplosion(p, 0xff4400, 60);
+                            createExplosion(p, 0xffaa00, 35);
+                            createExplosion(p, 0xff0000, 20);
+                            sfxExplode(2.0 - r * .3);
+                        }, delay);
+                    }
+
+                    // Spawn big fire ball chunks
+                    for (let i = 0; i < 30; i++) spawnFireChunk(player.position, 1.2 + Math.random() * 2.0);
+
+                    // Huge smoke mushroom
+                    for (let i = 0; i < 12; i++) {
+                        setTimeout(() => {
+                            const p = player ? player.position.clone() : new THREE.Vector3(crashState.startPos.x, crashState.groundY, crashState.startPos.z);
+                            spawnSmokePuff(p, 3.5 + Math.random() * 3.0, new THREE.Color().setHSL(0, 0, .1 + Math.random() * .2));
+                        }, i * 60);
+                    }
+
+                    scene.remove(player);
+                    player = null;
+
+                    // Screen flash
+                    const fl = document.getElementById('dmgflash');
+                    fl.style.transition = 'none';
+                    fl.style.background = 'rgba(255,160,0,0.85)';
+                    setTimeout(() => {
+                        fl.style.transition = 'background .6s';
+                        fl.style.background = 'rgba(255,50,50,0)';
+                    }, 80);
+                }
+            }
+
+            // ── 3. Camera pan: tilt down to show the crash ──
+            // Phase 1 (0 → 1.5s): follow the blimp falling
+            // Phase 2 (1.5s → end): slowly pan down/around the crash site
+            const camTarget = crashState.exploded
+                ? new THREE.Vector3(crashState.startPos.x, crashState.groundY, crashState.startPos.z - 10)
+                : (player ? player.position.clone() : new THREE.Vector3(crashState.startPos.x, crashState.groundY, crashState.startPos.z));
+
+            if (!crashState.exploded) {
+                // Follow the blimp down
+                camera.position.x = THREE.MathUtils.lerp(camera.position.x, camTarget.x * .4, .06);
+                camera.position.y = THREE.MathUtils.lerp(camera.position.y, camTarget.y + 14, .05);
+                camera.position.z = THREE.MathUtils.lerp(camera.position.z, camTarget.z + 30, .04);
+                camera.lookAt(camTarget);
+            } else {
+                // Slowly pan to reveal the burning wreck from a dramatic low angle
+                const elapsed = t - (dur - (dur - t) - (crashState.time - t)); // simplified: just use t
+                camera.position.y = THREE.MathUtils.lerp(camera.position.y, crashState.groundY + 8, .025);
+                camera.position.x = THREE.MathUtils.lerp(camera.position.x, crashState.startPos.x + 6, .03);
+                camera.lookAt(camTarget.x, camTarget.y + 3, camTarget.z);
+            }
+
+            // Continue rendering background particles + clouds
+            updateParticles(dt);
+            updateClouds(dt, false);
+            updateScenery(dt, false);
+
+            // ── 4. Show game over menu after full duration ──
+            if (t >= dur) {
+                state = S.GAMEOVER;
+                document.getElementById('go-score').textContent = score;
+                document.getElementById('go-kills').textContent = kills;
+                document.getElementById('go-wave').textContent = wave;
+                document.getElementById('go-acc').textContent = (shotsFired > 0 ? Math.round(shotsHit / shotsFired * 100) : 0) + '%';
+                document.getElementById('gowindow').style.display = 'block';
+            }
         }
         function backToMenu() {
             document.getElementById('gowindow').style.display = 'none';
@@ -1860,6 +2035,7 @@
         }
 
         function takeDamage(amt) {
+            if (state === S.CRASHING || state === S.GAMEOVER) return;
             const { armor } = getShipStats();
             const dmg = amt / armor;
             if (dmg <= 0) return;
@@ -1930,9 +2106,10 @@
                 updateClouds(dt, false); updateScenery(dt, false);
             } else if (state === S.PLAYING) {
                 updatePlaying(dt);
+            } else if (state === S.CRASHING) {
+                updateCrashing(dt);
             } else if (state === S.GAMEOVER) {
                 updateParticles(dt); updateClouds(dt, false); updateScenery(dt, false);
-                camera.position.y -= 1.2 * dt; camera.lookAt(0, 0, -60);
             }
             renderer.render(scene, camera);
         }
@@ -2121,11 +2298,18 @@
 
         function updateParticles(dt) {
             for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i]; p.life -= dt * (p.isRing ? 2.2 : 1.6);
+                const p = particles[i]; p.life -= dt * (p.isRing ? 2.2 : p.isSmoke ? 0.9 : 1.6);
                 if (p.life <= 0) { scene.remove(p.mesh); particles.splice(i, 1); continue; }
                 if (p.isRing) {
                     p.sc = p.sc + dt * 18; p.mesh.scale.setScalar(p.sc);
                     p.mesh.material.opacity = p.life * .7;
+                } else if (p.isSmoke) {
+                    p.mesh.position.add(p.vel);
+                    p.vel.multiplyScalar(.97);
+                    // Smoke grows and fades
+                    const growScale = p.initSize * (1 + (1 - p.life / 1.8) * 2.5);
+                    p.mesh.scale.setScalar(growScale);
+                    p.mesh.material.opacity = p.life * .55;
                 } else {
                     p.mesh.position.add(p.vel);
                     p.mesh.rotation.x += p.rot.x; p.mesh.rotation.y += p.rot.y;
