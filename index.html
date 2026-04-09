@@ -1196,7 +1196,7 @@
             border: 1px solid rgba(100,160,255,.3);
             border-radius: 8px;
             padding: 9px 12px;
-            color: #7090cc;
+            color: #253f70;
             font-size: 14px;
             font-family: var(--ui-font);
             font-weight: 700;
@@ -1304,11 +1304,7 @@
             flex-direction: column;
             gap: 18px;
         }
-
-            #mp-waiting-overlay.show {
-                display: flex;
-            }
-
+        #mp-waiting-overlay.show { display: flex; }
         .mp-wait-title {
             font-family: 'Black Han Sans', sans-serif;
             font-size: 38px;
@@ -1316,26 +1312,17 @@
             color: var(--red);
             filter: drop-shadow(0 0 18px rgba(255,60,70,.6));
         }
-
         .mp-wait-sub {
             font-size: 15px;
             color: rgba(180,200,255,.7);
             letter-spacing: 1px;
         }
-
         .mp-wait-dots {
             font-size: 28px;
             animation: dotPulse 1.4s infinite;
         }
-
         @keyframes dotPulse {
-            0%,100% {
-                opacity: .3
-            }
-
-            50% {
-                opacity: 1
-            }
+            0%,100%{opacity:.3} 50%{opacity:1}
         }
         /* ───── NICK CANVAS OVERLAY ───── */
         #nick-canvas {
@@ -1349,7 +1336,6 @@
         #mp-gowindow {
             display: none;
         }
-
         .btn-mp-leave {
             background: linear-gradient(135deg,#8b0000,#4a0000) !important;
             box-shadow: 0 4px 20px rgba(180,0,0,.4) !important;
@@ -1357,11 +1343,7 @@
             border-radius: 12px !important;
             margin-top: 8px;
         }
-
-            .btn-mp-leave:hover {
-                transform: translateY(-2px);
-            }
-
+        .btn-mp-leave:hover { transform: translateY(-2px); }
         .btn-mp-back {
             background: linear-gradient(135deg,#225fcc,#113388) !important;
             box-shadow: 0 4px 20px rgba(30,80,200,.4) !important;
@@ -1369,10 +1351,7 @@
             border-radius: 12px !important;
             margin-top: 8px;
         }
-
-            .btn-mp-back:hover {
-                transform: translateY(-2px);
-            }
+        .btn-mp-back:hover { transform: translateY(-2px); }
 
         .btn-mp {
             width: 100%;
@@ -1692,131 +1671,191 @@
         });
 
         // ══════════════════════════════════════════════════════════
-        // MULTIPLAYER — PeerJS WebRTC
+        // MULTIPLAYER — PeerJS WebRTC  (reescrito)
         // ══════════════════════════════════════════════════════════
+        //
+        // Arquitetura estrela: host conectado diretamente com cada client.
+        // Clients NÃO se conectam entre si — host retransmite tudo.
+        // Cada msg de posição inclui "pid" (peerID real do dono).
+        //
+        //  MP.conns   { peerID → DataConnection }
+        //  MP.remotes { peerID → { nick, mesh, dead } }
+        //  MP.myId    — peerID local
+        //  MP.hostId  — peerID do host
+        //  MP.deadSet — Set de quem morreu ('_me' = local)
+
         const MP = {
-            peer: null,           // our PeerJS peer
-            role: null,           // 'host' or 'client'
-            conns: {},            // peerID → DataConnection (host keeps all; client keeps 1)
-            players: {},          // peerID → { nick, mesh, x, y, rotZ, hp }
+            peer: null,
+            role: null,         // 'host' | 'client'
+            myId: null,
+            hostId: null,
+            conns: {},
+            remotes: {},
             roomCode: null,
             isPlaying: false,
-            localDead: false,     // local player died, waiting for others
-            remoteDead: {},       // peerID → true when that remote player is dead
+            deadSet: new Set(),
+            totalPlayers: 0,
 
-            // Send to all (host only)
+            _send(conn, data) { try { conn.send(data); } catch(e) {} },
             broadcast(data, excludeId) {
-                for (const id in this.conns) {
-                    if (id !== excludeId) try { this.conns[id].send(data); } catch (e) { }
-                }
+                for (const id in this.conns)
+                    if (id !== excludeId) this._send(this.conns[id], data);
             },
-            // Send to host (client only)
             sendToHost(data) {
-                const ids = Object.keys(this.conns);
-                if (ids.length) try { this.conns[ids[0]].send(data); } catch (e) { }
+                if (this.hostId && this.conns[this.hostId])
+                    this._send(this.conns[this.hostId], data);
             },
-            // Send to everyone including self-relay when host
+
             sendState() {
                 if (!this.isPlaying || !player) return;
-                const msg = { type: 'state', x: player.position.x, y: player.position.y, rotZ: player.rotation.z, hp };
+                const msg = { type: 'state', pid: this.myId,
+                    x: player.position.x, y: player.position.y, rotZ: player.rotation.z, hp };
                 if (this.role === 'host') this.broadcast(msg);
                 else this.sendToHost(msg);
             },
-            // Notify others we died
-            sendDead() {
-                const msg = { type: 'dead' };
-                if (this.role === 'host') this.broadcast(msg);
-                else this.sendToHost(msg);
-            },
-            // Handle incoming message
-            onMsg(fromId, data) {
-                if (data.type === 'state') {
-                    // Update remote player mesh
-                    if (!this.players[fromId]) this._addRemotePlayer(fromId, this.players[fromId]?.nick || fromId);
-                    const p = this.players[fromId];
-                    if (p && p.mesh) {
-                        p.mesh.position.x = THREE.MathUtils.lerp(p.mesh.position.x, data.x, 0.35);
-                        p.mesh.position.y = THREE.MathUtils.lerp(p.mesh.position.y, data.y, 0.35);
-                        p.mesh.rotation.z = THREE.MathUtils.lerp(p.mesh.rotation.z, data.rotZ, 0.25);
-                        p.hp = data.hp;
+
+            onMsg(fromConnId, data) {
+                switch (data.type) {
+                case 'state': {
+                    const pid = data.pid || fromConnId;
+                    if (pid === this.myId) break;
+                    this._ensureRemote(pid, null);
+                    const r = this.remotes[pid];
+                    if (r && r.mesh && !r.dead) {
+                        r.mesh.position.x = THREE.MathUtils.lerp(r.mesh.position.x, data.x, 0.35);
+                        r.mesh.position.y = THREE.MathUtils.lerp(r.mesh.position.y, data.y, 0.35);
+                        r.mesh.rotation.z = THREE.MathUtils.lerp(r.mesh.rotation.z, data.rotZ, 0.25);
+                        r.hp = data.hp;
                     }
-                    // Host relays to other clients
-                    if (this.role === 'host') this.broadcast(data, fromId);
-                } else if (data.type === 'dead') {
-                    // A remote player died
-                    this.remoteDead[fromId] = true;
-                    if (this.players[fromId]?.mesh) {
-                        createExplosion(this.players[fromId].mesh.position, 0xff6600, 18);
-                        sfxExplode(1.0);
-                        scene.remove(this.players[fromId].mesh);
-                        this.players[fromId].mesh = null;
-                    }
-                    // Host relays dead message
-                    if (this.role === 'host') this.broadcast(data, fromId);
-                    // Check if all are dead now
-                    this._checkAllDead();
-                } else if (data.type === 'join_info') {
-                    // Client receives host's player list
+                    if (this.role === 'host') this.broadcast(data, fromConnId);
+                    break;
+                }
+                case 'dead': {
+                    const pid = data.pid || fromConnId;
+                    if (pid !== this.myId) this._handleRemoteDead(pid);
+                    if (this.role === 'host') this.broadcast(data, fromConnId);
+                    break;
+                }
+                case 'join_info':
                     this._updateJoinPlayerList(data.players);
-                } else if (data.type === 'start') {
-                    // Host says game starts
+                    break;
+                case 'start':
+                    this.totalPlayers = data.total || 2;
+                    if (data.nickMap) {
+                        for (const pid in data.nickMap) {
+                            if (pid === this.myId) continue;
+                            if (!this.remotes[pid]) this.remotes[pid] = { nick: data.nickMap[pid], mesh: null, dead: false };
+                            else this.remotes[pid].nick = data.nickMap[pid];
+                        }
+                    }
                     closeMP();
-                    startGame();
                     this.isPlaying = true;
+                    startGame();
                     notify('🌐 Partida multiplayer iniciada!', 'blue');
-                } else if (data.type === 'nick') {
-                    if (this.players[fromId]) this.players[fromId].nick = data.nick;
+                    break;
+                case 'nick':
+                    if (this.remotes[fromConnId]) this.remotes[fromConnId].nick = data.nick;
+                    break;
                 }
             },
+
+            _ensureRemote(pid, nick) {
+                if (!this.isPlaying) return;
+                if (pid === this.myId) return;
+                if (!this.remotes[pid]) this.remotes[pid] = { nick: nick || pid, mesh: null, dead: false };
+                const r = this.remotes[pid];
+                if (!r.mesh && !r.dead) {
+                    const idx = Object.keys(this.remotes).indexOf(pid);
+                    const hue = (idx * 0.37 + 0.58) % 1;
+                    const col = new THREE.Color().setHSL(hue, 0.8, 0.45);
+                    const cfg = {
+                        shape: 'classic', fins: 'standard', gondola: 'box', gun: 'single', emblem: 'none',
+                        colors: {
+                            env: '#' + col.getHexString(), gon: '#1a2a55', fin: '#0d1f66',
+                            prop: '#aaaacc', nose: '#1a3377', stripe: '#88aaff', gondola2: '#0d1a44', trim: '#aaddff'
+                        }
+                    };
+                    const mesh = buildBlimp(cfg);
+                    mesh.position.set(8 + idx * 5, 0, 0);
+                    scene.add(mesh);
+                    r.mesh = mesh;
+                    if (nick) r.nick = nick;
+                }
+            },
+
+            spawnAllRemotes() {
+                for (const pid in this.remotes) this._ensureRemote(pid, this.remotes[pid].nick);
+            },
+
+            _handleRemoteDead(pid) {
+                if (this.deadSet.has(pid)) return;
+                this.deadSet.add(pid);
+                const r = this.remotes[pid];
+                if (r) {
+                    r.dead = true;
+                    if (r.mesh) {
+                        createExplosion(r.mesh.position, 0xff6600, 22);
+                        sfxExplode(1.0);
+                        scene.remove(r.mesh);
+                        r.mesh = null;
+                    }
+                }
+                this._checkAllDead();
+            },
+
             _checkAllDead() {
-                if (!this.localDead) return;
-                // All remote players also dead?
-                const allRemoteDead = Object.keys(this.players).every(id => this.remoteDead[id]);
-                if (allRemoteDead) {
-                    // Everyone dead: show MP game over
+                if (!this.deadSet.has('_me')) return;
+                const rids = Object.keys(this.remotes);
+                if (rids.length === 0) return;
+                if (rids.every(pid => this.deadSet.has(pid))) {
                     document.getElementById('mp-waiting-overlay').classList.remove('show');
                     showMPGameOver();
                 }
             },
-            _addRemotePlayer(id, nick) {
-                if (this.players[id]?.mesh) return;
-                const remoteCfg = {
-                    shape: 'classic', fins: 'standard', gondola: 'box', gun: 'single', emblem: 'none',
-                    colors: { env: '#3366ff', gon: '#223355', fin: '#1133aa', prop: '#aaaacc', nose: '#224488', stripe: '#88aaff', gondola2: '#112244', trim: '#aaddff' }
-                };
-                const mesh = buildBlimp(remoteCfg);
-                mesh.position.set(8, 0, 0);
-                scene.add(mesh);
-                if (!this.players[id]) this.players[id] = {};
-                this.players[id].mesh = mesh;
-                this.players[id].nick = nick || id;
+
+            localDie() {
+                if (this.deadSet.has('_me')) return;
+                this.deadSet.add('_me');
+                const msg = { type: 'dead', pid: this.myId };
+                if (this.role === 'host') this.broadcast(msg);
+                else this.sendToHost(msg);
             },
-            _removeRemotePlayer(id) {
-                if (this.players[id]?.mesh) { scene.remove(this.players[id].mesh); }
-                delete this.players[id];
+
+            _removeRemote(pid) {
+                const r = this.remotes[pid];
+                if (r && r.mesh) scene.remove(r.mesh);
+                delete this.remotes[pid];
             },
+
             _updateJoinPlayerList(list) {
                 const el = document.getElementById('mp-join-player-list');
                 if (el) el.innerHTML = list.map(n => `<div class="mp-player-item">🎈 ${n}</div>`).join('') || '—';
             },
+
             reset() {
-                for (const id in this.players) this._removeRemotePlayer(id);
-                if (this.peer) { try { this.peer.destroy(); } catch (e) { } this.peer = null; }
-                this.conns = {}; this.players = {}; this.role = null; this.roomCode = null; this.isPlaying = false;
-                this.localDead = false; this.remoteDead = {};
+                for (const pid in this.remotes) this._removeRemote(pid);
+                if (this.peer) { try { this.peer.destroy(); } catch(e) {} this.peer = null; }
+                this.conns = {}; this.remotes = {}; this.role = null;
+                this.myId = null; this.hostId = null;
+                this.roomCode = null; this.isPlaying = false;
+                this.deadSet = new Set(); this.totalPlayers = 0;
             }
         };
 
-        // ── Sync loop: send state 20 times/sec ──
-        setInterval(() => { if (MP.isPlaying && (MP.role === 'host' || Object.keys(MP.conns).length)) MP.sendState(); }, 50);
+        // Sync 20×/s
+        setInterval(() => { if (MP.isPlaying) MP.sendState(); }, 50);
 
-        // ── HOST ──
+        // ══════════════════════════════════════════════════════════
+        // HOST
+        // ══════════════════════════════════════════════════════════
         function genRoomCode() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let code = 'BZ-';
             for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
             return code;
         }
+
+        let _hostNickMap = {};
 
         function mpHost(serverName) {
             const status = document.getElementById('mp-host-status');
@@ -1826,41 +1865,49 @@
             const shortCode = genRoomCode();
             MP.peer = new Peer(shortCode);
             MP.peer.on('open', id => {
+                MP.myId = id;
+                MP.hostId = id;
                 MP.roomCode = id;
+                _hostNickMap = {};
+                _hostNickMap[id] = playerNick;
                 document.getElementById('mp-room-code').textContent = id;
                 document.getElementById('mp-host-setup').style.display = 'none';
                 document.getElementById('mp-host-waiting').style.display = 'block';
                 document.getElementById('mp-host-self').textContent = '👑 ' + playerNick + ' (você, host)';
                 status.textContent = 'Sala criada! Aguardando jogadores...';
                 status.className = 'mp-status ok';
-                MP.players['_host'] = { nick: playerNick };
+                _updateHostPlayerList();
             });
             MP.peer.on('connection', conn => {
                 MP.conns[conn.peer] = conn;
-                let connNick = conn.peer;
+                _hostNickMap[conn.peer] = conn.peer;
+                conn.on('open', () => {
+                    const list = Object.values(_hostNickMap);
+                    conn.send({ type: 'join_info', players: list });
+                });
                 conn.on('data', data => {
                     if (data.type === 'nick') {
-                        connNick = data.nick;
-                        MP.players[conn.peer] = { nick: connNick };
+                        _hostNickMap[conn.peer] = data.nick;
+                        if (!MP.remotes[conn.peer]) MP.remotes[conn.peer] = { nick: data.nick, mesh: null, dead: false };
+                        else MP.remotes[conn.peer].nick = data.nick;
                         _updateHostPlayerList();
-                        // Send updated list to all
-                        const list = Object.values(MP.players).map(p => p.nick);
-                        MP.broadcast({ type: 'join_info', players: list });
+                        MP.broadcast({ type: 'join_info', players: Object.values(_hostNickMap) });
                     } else {
                         MP.onMsg(conn.peer, data);
                     }
                 });
                 conn.on('close', () => {
                     delete MP.conns[conn.peer];
-                    MP._removeRemotePlayer(conn.peer);
-                    delete MP.players[conn.peer];
+                    delete _hostNickMap[conn.peer];
+                    if (MP.isPlaying) {
+                        if (!MP.deadSet.has(conn.peer)) MP._handleRemoteDead(conn.peer);
+                    } else {
+                        MP._removeRemote(conn.peer);
+                    }
                     _updateHostPlayerList();
                 });
-                conn.on('open', () => {
-                    // Send current players
-                    const list = Object.values(MP.players).map(p => p.nick);
-                    conn.send({ type: 'join_info', players: list });
-                });
+                conn.on('error', () => {});
+                _updateHostPlayerList();
             });
             MP.peer.on('error', err => {
                 status.textContent = 'Erro: ' + err.type; status.className = 'mp-status err';
@@ -1870,14 +1917,16 @@
         function _updateHostPlayerList() {
             const el = document.getElementById('mp-player-list');
             const items = ['<div class="mp-player-item">👑 ' + playerNick + ' (você)</div>'];
-            for (const id in MP.players) {
-                if (id === '_host') continue;
-                items.push('<div class="mp-player-item">🎈 ' + MP.players[id].nick + '</div>');
+            for (const pid in _hostNickMap) {
+                if (pid === MP.myId) continue;
+                items.push('<div class="mp-player-item">🎈 ' + _hostNickMap[pid] + '</div>');
             }
             el.innerHTML = items.join('');
         }
 
-        // ── JOIN ──
+        // ══════════════════════════════════════════════════════════
+        // CLIENT
+        // ══════════════════════════════════════════════════════════
         function mpJoin(code) {
             const status = document.getElementById('mp-join-status');
             status.textContent = 'Conectando...'; status.className = 'mp-status';
@@ -1885,38 +1934,43 @@
             MP.role = 'client';
             MP.peer = new Peer();
             MP.peer.on('open', myId => {
-                const conn = MP.peer.connect(code.toUpperCase(), { reliable: false });
-                MP.conns[code] = conn;
+                MP.myId = myId;
+                const hostCode = code.toUpperCase();
+                MP.hostId = hostCode;
+                const conn = MP.peer.connect(hostCode, { reliable: true });
+                MP.conns[hostCode] = conn;
                 conn.on('open', () => {
                     conn.send({ type: 'nick', nick: playerNick });
                     status.textContent = 'Conectado! Aguardando host...'; status.className = 'mp-status ok';
                     document.getElementById('mp-join-setup').style.display = 'none';
                     document.getElementById('mp-join-lobby').style.display = 'block';
                 });
-                conn.on('data', data => MP.onMsg(code, data));
+                conn.on('data', data => MP.onMsg(hostCode, data));
                 conn.on('close', () => {
-                    status.textContent = 'Desconectado.'; status.className = 'mp-status err';
+                    if (!MP.isPlaying) {
+                        status.textContent = 'Desconectado.'; status.className = 'mp-status err';
+                    } else {
+                        notify('⚠ Conexão com host perdida', 'red');
+                    }
                 });
-                conn.on('error', err => {
-                    status.textContent = 'Erro de conexão.'; status.className = 'mp-status err';
-                });
+                conn.on('error', () => {});
             });
-            MP.peer.on('error', err => {
+            MP.peer.on('error', () => {
                 status.textContent = 'Não foi possível conectar.'; status.className = 'mp-status err';
             });
         }
 
-        // ── MP UI ──
+        // ══════════════════════════════════════════════════════════
+        // MP UI EVENTS
+        // ══════════════════════════════════════════════════════════
         function openMP() { document.getElementById('mp-modal').classList.add('open'); }
         function closeMP() { document.getElementById('mp-modal').classList.remove('open'); }
 
         document.getElementById('btn-mp').addEventListener('click', openMP);
         document.getElementById('mp-close').addEventListener('click', () => {
             closeMP();
-            // Reset if not in a game
             if (!MP.isPlaying) MP.reset();
         });
-
         document.getElementById('mp-tab-host').addEventListener('click', () => {
             document.getElementById('mp-tab-host').classList.add('active');
             document.getElementById('mp-tab-join').classList.remove('active');
@@ -1929,29 +1983,33 @@
             document.getElementById('mp-join-section').classList.add('open');
             document.getElementById('mp-host-section').classList.remove('open');
         });
-
         document.getElementById('mp-host-btn').addEventListener('click', () => {
-            const name = document.getElementById('mp-server-name').value.trim() || 'Servidor';
-            mpHost(name);
+            mpHost(document.getElementById('mp-server-name').value.trim() || 'Servidor');
         });
-
         document.getElementById('mp-join-btn').addEventListener('click', () => {
             const code = document.getElementById('mp-join-code').value.trim();
-            if (!code) return;
-            mpJoin(code);
+            if (code) mpJoin(code);
         });
-
         document.getElementById('mp-room-code').addEventListener('click', () => {
             const code = document.getElementById('mp-room-code').textContent;
-            navigator.clipboard.writeText(code).then(() => notify('📋 Código copiado!', 'blue')).catch(() => { });
+            navigator.clipboard.writeText(code).then(() => notify('📋 Código copiado!', 'blue')).catch(() => {});
         });
-
         document.getElementById('mp-start-btn').addEventListener('click', () => {
-            // Host starts game and notifies all clients
-            MP.broadcast({ type: 'start' });
+            if (Object.keys(MP.conns).length === 0) {
+                notify('⚠ Nenhum jogador conectado!', 'red'); return;
+            }
+            const nickMap = Object.assign({}, _hostNickMap);
+            nickMap[MP.myId] = playerNick;
+            const total = Object.keys(nickMap).length;
+            MP.totalPlayers = total;
+            for (const pid in nickMap) {
+                if (pid === MP.myId) continue;
+                if (!MP.remotes[pid]) MP.remotes[pid] = { nick: nickMap[pid], mesh: null, dead: false };
+            }
+            MP.broadcast({ type: 'start', total, nickMap });
             closeMP();
-            startGame();
             MP.isPlaying = true;
+            startGame();
             notify('🌐 Partida multiplayer iniciada!', 'blue');
         });
 
@@ -2554,8 +2612,8 @@
             }
 
             // Remote players
-            for (const id in MP.players) {
-                const rp = MP.players[id];
+            for (const id in MP.remotes) {
+                const rp = MP.remotes[id];
                 if (!rp.mesh) continue;
                 const screenPos = worldToScreen(rp.mesh.position.clone().add(new THREE.Vector3(0, 4, 0)));
                 if (!screenPos.behind) drawNickLabel(rp.nick || id, screenPos.x, screenPos.y, '#88aaff');
@@ -2637,6 +2695,8 @@
             }
             scene.remove(previewShip); clearEntities();
             player = buildBlimp(ship); player.position.set(0, 0, 0); scene.add(player);
+            // Spawn remote player meshes if multiplayer
+            if (MP.isPlaying) MP.spawnAllRemotes();
             camera.position.set(0, 6, 28); camera.lookAt(0, 0, -100);
             showWave('ONDA 1'); notify('Boa sorte, piloto! ✈', 'blue');
             updateHUD();
@@ -2646,8 +2706,7 @@
             document.getElementById('mp-gowindow').style.display = 'none';
             document.getElementById('mp-waiting-overlay').classList.remove('show');
             if (MP.isPlaying) {
-                MP.localDead = false;
-                MP.remoteDead = {};
+                MP.deadSet = new Set();
             }
             player = null; // ensure clean state
             startGame();
@@ -2733,9 +2792,7 @@
 
             // Multiplayer: notify others we died
             if (MP.isPlaying) {
-                MP.localDead = true;
-                MP.remoteDead = {};
-                MP.sendDead();
+                MP.localDie();
             }
 
             state = S.CRASHING;
@@ -2899,11 +2956,11 @@
             state = S.MENU;
             // Keep MP connection alive, reopen MP modal
             MP.isPlaying = false;
-            MP.localDead = false;
-            MP.remoteDead = {};
-            // Reset player meshes for potential rematch
-            for (const id in MP.players) {
-                if (MP.players[id].mesh) { scene.remove(MP.players[id].mesh); MP.players[id].mesh = null; }
+            MP.deadSet = new Set();
+            // Reset remote meshes for potential rematch
+            for (const id in MP.remotes) {
+                if (MP.remotes[id].mesh) { scene.remove(MP.remotes[id].mesh); MP.remotes[id].mesh = null; }
+                if (MP.remotes[id]) MP.remotes[id].dead = false;
             }
             openMP();
         });
@@ -2929,9 +2986,10 @@
             bullets = []; eBullets = []; enemies = []; clouds = []; particles = []; powerups = [];
             // Clear nick canvas
             if (nickCtx) nickCtx.clearRect(0, 0, nickCanvas.width, nickCanvas.height);
-            // Remove remote player meshes but keep connections
-            for (const id in MP.players) {
-                if (MP.players[id].mesh) { scene.remove(MP.players[id].mesh); MP.players[id].mesh = null; }
+            // Remove remote player meshes but keep connections; reset dead for restart
+            for (const id in MP.remotes) {
+                if (MP.remotes[id].mesh) { scene.remove(MP.remotes[id].mesh); MP.remotes[id].mesh = null; }
+                MP.remotes[id].dead = false;
             }
             // keep scenery, just reset positions for scrollable non-ground items
             scenery.forEach(s => {
@@ -3173,8 +3231,8 @@
                 // Find bounding box of all players
                 let minX = player.position.x, maxX = player.position.x;
                 let minY = player.position.y, maxY = player.position.y;
-                for (const id in MP.players) {
-                    const rp = MP.players[id];
+                for (const id in MP.remotes) {
+                    const rp = MP.remotes[id];
                     if (rp.mesh) {
                         minX = Math.min(minX, rp.mesh.position.x);
                         maxX = Math.max(maxX, rp.mesh.position.x);
@@ -3207,8 +3265,8 @@
             updateHUD();
             updateNickLabels();
             // Animate remote player props
-            for (const id in MP.players) {
-                const rp = MP.players[id];
+            for (const id in MP.remotes) {
+                const rp = MP.remotes[id];
                 if (rp.mesh) {
                     const prop = rp.mesh.getObjectByName('prop');
                     if (prop) prop.rotation.z += 12 * dt;
