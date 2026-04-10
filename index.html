@@ -95,9 +95,7 @@
             box-shadow: 0 8px 40px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
             color: #ddeeff;
             font-family: var(--ui-font);
-            /* Win7-style title bar will be simulated via .mhdr */
         }
-        /* Wrap panel in a win7 window chrome */
         .win7-window {
             background: transparent;
             border-radius: 8px 8px 4px 4px;
@@ -172,7 +170,6 @@
                 pointer-events: auto;
             }
 
-        /* Game Over centered */
         #gowindow-wrapper {
             position: fixed;
             inset: 0;
@@ -192,7 +189,6 @@
             width: 420px;
         }
 
-        /* 7.css overrides — prevent it from stomping game UI */
         body {
             font-family: var(--ui-font);
         }
@@ -200,12 +196,10 @@
         button, input {
             font-family: var(--ui-font);
         }
-        /* Reset 7.css button styles for our custom buttons */
         .btn-launch, .btn-go, .part-btn, .mtab {
             box-shadow: none;
             border-radius: inherit;
         }
-        /* Keep 7.css from adding weird borders to color inputs */
         input[type=color] {
             padding: 2px !important;
             border-radius: 9px !important;
@@ -278,7 +272,6 @@
                 display: block;
             }
 
-        /* Workshop */
         .ws-section {
             margin-bottom: 16px;
         }
@@ -292,7 +285,6 @@
             margin-bottom: 10px;
         }
 
-        /* Color pickers */
         .colgrid {
             display: grid;
             grid-template-columns: repeat(4,1fr);
@@ -326,7 +318,6 @@
                     box-shadow: 0 0 0 2px var(--gold),0 0 12px rgba(255,215,0,.35);
                 }
 
-        /* Part selectors */
         .parts-row {
             display: flex;
             gap: 8px;
@@ -358,7 +349,6 @@
                 color: #cce0ff;
             }
 
-        /* Controls */
         .ctrl-box {
             background: rgba(0,0,0,.3);
             border: 1px solid rgba(255,255,255,.05);
@@ -407,7 +397,6 @@
                 transform: translateY(1px);
             }
 
-        /* Stat preview */
         .stat-preview {
             display: flex;
             gap: 8px;
@@ -514,7 +503,7 @@
             color: #44FF88;
             margin-top: 3px;
         }
-        /* boss health */
+
         #boss-bar {
             position: absolute;
             bottom: 90px;
@@ -860,19 +849,16 @@
                 border-radius: 2px;
             }
 
-        /* ───── 7.css DEEP RESETS — protect all game UI ───── */
-        /* 7.css uses body font, button styles etc — reset what matters */
+        /* ───── 7.css DEEP RESETS ───── */
         body {
             font-family: var(--ui-font) !important;
             background: var(--sky) !important;
         }
-        /* prevent 7.css from styling our HUD/powerup/notif elements */
         #hud, #pubar, #notifs, #wavebanner, #dmgflash, #xhair,
         #tctrl, #tfire, #boss-bar {
             all: revert;
             font-family: var(--ui-font);
         }
-        /* Re-apply fixed positioning after revert */
         #hud {
             position: fixed;
             inset: 0;
@@ -976,7 +962,6 @@
             pointer-events: auto;
             touch-action: manipulation;
         }
-        /* Buttons inside game chrome */
         .btn-launch, .btn-go {
             display: block;
             box-sizing: border-box;
@@ -1047,7 +1032,6 @@
             .tbtn:active {
                 background: rgba(30,60,160,.8) !important;
             }
-        /* part-btn and mtab overrides */
         .mtab, .part-btn {
             background: rgba(0,0,0,.3) !important;
             border: 1px solid var(--panel-border) !important;
@@ -1060,7 +1044,6 @@
                 border-color: rgba(100,160,255,.5) !important;
                 color: #b8d0ff !important;
             }
-        /* color inputs */
         input[type=color] {
             width: 40px !important;
             height: 40px !important;
@@ -1472,14 +1455,12 @@
     <div id="dmgflash"></div>
     <div id="xhair"><div class="dot"></div></div>
 
-    <!-- MP WAITING OVERLAY (shown when local player dies, waiting for opponent) -->
     <div id="mp-waiting-overlay">
         <div class="mp-wait-title">💀 DESTRUÍDO</div>
         <div class="mp-wait-sub">Aguardando o outro piloto...</div>
         <div class="mp-wait-dots">✈ ✈ ✈</div>
     </div>
 
-    <!-- MP GAME OVER (centered, multiplayer version) -->
     <div id="gowindow-wrapper-mp" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:10;">
         <div class="win7-window" id="mp-gowindow" style="display:none;pointer-events:auto;">
             <div class="win7-titlebar">
@@ -1503,7 +1484,6 @@
     </div>
 
     <div id="ui">
-        <!-- MENU — Win7 window on the left -->
         <div class="win7-window" id="menu">
             <div class="win7-titlebar">
                 <span class="win7-icon">🎈</span>
@@ -1519,7 +1499,6 @@
                     <div class="mtitle">BLIMPZ</div>
                     <div class="msub">Combat Airship &mdash; Sky Battle</div>
                 </div>
-                <!-- Nick row -->
                 <div class="nick-row">
                     <span class="nick-lbl">✈ Nick</span>
                     <input type="text" class="nick-input" id="nick-input" maxlength="16" placeholder="Seu piloto..." autocomplete="off">
@@ -1530,7 +1509,6 @@
                         <div class="mtab" data-tab="controls">🎮 Controles</div>
                     </div>
 
-                    <!-- WORKSHOP TAB -->
                     <div class="tab-content active ws-scroll" id="tab-workshop">
 
                         <div class="ws-section">
@@ -1607,7 +1585,6 @@
                         </div>
                     </div>
 
-                    <!-- CONTROLS TAB -->
                     <div class="tab-content" id="tab-controls">
                         <div class="ctrl-box">
                             <b>WASD / Setas</b> — Mover nave<br>
@@ -1627,16 +1604,16 @@
 
                     <button class="btn-launch" id="btn-start" style="margin-top:16px;">✈ DECOLAR!</button>
                     <button class="btn-mp" id="btn-mp">🌐 MULTIPLAYER</button>
-                </div><!-- /.mbody -->
+                </div>
                 <div id="menu-footer">
                     <a href="https://renanstudios.github.io/glossows-xp/" target="_blank" rel="noopener" class="frutiger-aero-button">
                         ✨ Veja meu outro projeto: Glossows XP
                     </a>
                 </div>
-            </div><!-- /.panel -->
-        </div><!-- /.win7-window / #menu -->
-    </div><!-- /#ui -->
-    <!-- GAME OVER — centered separately -->
+            </div>
+        </div>
+    </div>
+
     <div id="gowindow-wrapper">
         <div class="win7-window" id="gowindow" style="display:none;">
             <div class="win7-titlebar">
@@ -1657,10 +1634,10 @@
                 </div>
                 <button class="btn-go btn-restart" id="btn-restart">↩ TENTAR NOVAMENTE</button>
                 <button class="btn-go btn-menu" id="btn-menu">🔧 OFICINA</button>
-            </div><!-- /.panel -->
-        </div><!-- /.win7-window -->
-    </div><!-- /#gowindow-wrapper -->
-    <!-- HUD -->
+            </div>
+        </div>
+    </div>
+
     <div id="hud">
         <div id="hud-top">
             <div class="hcard"><div class="hlbl">Pontos</div><div class="hval" id="ui-score">0</div></div>
@@ -1678,7 +1655,6 @@
         </div>
     </div>
 
-    <!-- POWERUP BAR -->
     <div id="pubar">
         <div class="puic" id="pu-rapid">⚡<span class="putimer" id="pu-rapid-t" style="display:none"></span></div>
         <div class="puic" id="pu-shield">🛡️<span class="putimer" id="pu-shield-t" style="display:none"></span></div>
@@ -1689,7 +1665,6 @@
     <div id="notifs"></div>
     <div id="wavebanner"><div class="wtext" id="wave-text"></div></div>
 
-    <!-- TOUCH -->
     <div id="tctrl">
         <button class="tbtn" id="t-up">▲</button>
         <div style="display:flex;gap:8px">
@@ -1700,7 +1675,6 @@
     </div>
     <div id="tfire">🔥</div>
 
-    <!-- MULTIPLAYER MODAL -->
     <div id="mp-modal">
         <div class="mp-panel">
             <div class="mp-title">🌐 MULTIPLAYER</div>
@@ -1709,7 +1683,6 @@
                 <button class="mp-tab-btn" id="mp-tab-join">🔍 Entrar</button>
             </div>
 
-            <!-- HOST SECTION -->
             <div class="mp-section open" id="mp-host-section">
                 <div class="mp-lbl">Nome do Servidor</div>
                 <input type="text" class="mp-input" id="mp-server-name" maxlength="24" placeholder="Meu Servidor..." autocomplete="off">
@@ -1731,7 +1704,6 @@
                 <div class="mp-status" id="mp-host-status"></div>
             </div>
 
-            <!-- JOIN SECTION -->
             <div class="mp-section" id="mp-join-section">
                 <div class="mp-lbl">Código do Servidor</div>
                 <input type="text" class="mp-input" id="mp-join-code" maxlength="20" placeholder="Cole o código aqui..." autocomplete="off" style="text-transform:uppercase;letter-spacing:2px;">
@@ -1765,26 +1737,15 @@
         });
 
         // ══════════════════════════════════════════════════════════
-        // MULTIPLAYER — PeerJS WebRTC  (reescrito)
+        // MULTIPLAYER — PeerJS WebRTC
         // ══════════════════════════════════════════════════════════
-        //
-        // Arquitetura estrela: host conectado diretamente com cada client.
-        // Clients NÃO se conectam entre si — host retransmite tudo.
-        // Cada msg de posição inclui "pid" (peerID real do dono).
-        //
-        //  MP.conns   { peerID → DataConnection }
-        //  MP.remotes { peerID → { nick, mesh, dead } }
-        //  MP.myId    — peerID local
-        //  MP.hostId  — peerID do host
-        //  MP.deadSet — Set de quem morreu ('_me' = local)
-
         const MP = {
             peer: null,
-            role: null,         // 'host' | 'client'
+            role: null,
             myId: null,
             hostId: null,
             conns: {},
-            remotes: {},
+            remotes: {},   // { pid: { nick, mesh, dead, cfg } }
             roomCode: null,
             isPlaying: false,
             deadSet: new Set(),
@@ -1840,8 +1801,15 @@
                         if (data.nickMap) {
                             for (const pid in data.nickMap) {
                                 if (pid === this.myId) continue;
-                                if (!this.remotes[pid]) this.remotes[pid] = { nick: data.nickMap[pid], mesh: null, dead: false };
+                                if (!this.remotes[pid]) this.remotes[pid] = { nick: data.nickMap[pid], mesh: null, dead: false, cfg: null };
                                 else this.remotes[pid].nick = data.nickMap[pid];
+                            }
+                        }
+                        // Store configs received from start packet
+                        if (data.cfgMap) {
+                            for (const pid in data.cfgMap) {
+                                if (pid === this.myId) continue;
+                                if (this.remotes[pid]) this.remotes[pid].cfg = data.cfgMap[pid];
                             }
                         }
                         closeMP();
@@ -1851,22 +1819,42 @@
                         break;
                     case 'nick':
                         if (this.remotes[fromConnId]) this.remotes[fromConnId].nick = data.nick;
+                        // Also store cfg if provided with nick
+                        if (data.cfg && this.remotes[fromConnId]) this.remotes[fromConnId].cfg = data.cfg;
+                        break;
+
+                    // ── FIX BUG 3: stats from a remote player on game over ──
+                    case 'stats':
+                        // host broadcasts to everyone; client just stores
+                        if (this.remotes[data.pid]) {
+                            this.remotes[data.pid].finalStats = data.stats;
+                        }
+                        if (this.role === 'host') this.broadcast(data, fromConnId);
                         break;
 
                     case 'world':
-                        // host → clientes: snapshot de inimigos e eBullets
                         this.applyWorldSnapshot(data);
                         break;
 
+                    // ── FIX BUG 1: remote player bullets ──
+                    case 'rbullet': {
+                        // A remote player fired — create a visual bullet for everyone to see
+                        const pid = data.pid || fromConnId;
+                        if (pid !== this.myId) {
+                            _spawnRemoteBullet(data.x, data.y, data.z, data.dx, data.isInferno);
+                        }
+                        // Host re-broadcasts to all other clients
+                        if (this.role === 'host') this.broadcast(data, fromConnId);
+                        break;
+                    }
+
                     case 'shoot':
-                        // cliente → host: informa que atirou (host resolve colisão)
                         if (this.role === 'host') {
                             _clientShoot(data);
                         }
                         break;
 
                     case 'wave':
-                        // host → clientes: avança onda
                         if (this.role === 'client') {
                             wave = data.w; waveTimer = 0; bossSpawned = false;
                             waveDuration = Math.max(12, 22 - wave * .6);
@@ -1880,24 +1868,31 @@
                 }
             },
 
+            // ── FIX BUG 2: _ensureRemote uses the stored cfg of the remote player ──
             _ensureRemote(pid, nick) {
                 if (!this.isPlaying) return;
                 if (pid === this.myId) return;
-                if (!this.remotes[pid]) this.remotes[pid] = { nick: nick || pid, mesh: null, dead: false };
+                if (!this.remotes[pid]) this.remotes[pid] = { nick: nick || pid, mesh: null, dead: false, cfg: null };
                 const r = this.remotes[pid];
                 if (!r.mesh && !r.dead) {
-                    const idx = Object.keys(this.remotes).indexOf(pid);
-                    const hue = (idx * 0.37 + 0.58) % 1;
-                    const col = new THREE.Color().setHSL(hue, 0.8, 0.45);
-                    const cfg = {
-                        shape: 'classic', fins: 'standard', gondola: 'box', gun: 'single', emblem: 'none',
-                        colors: {
-                            env: '#' + col.getHexString(), gon: '#1a2a55', fin: '#0d1f66',
-                            prop: '#aaaacc', nose: '#1a3377', stripe: '#88aaff', gondola2: '#0d1a44', trim: '#aaddff'
-                        }
-                    };
+                    // Use the real ship config if we have it, otherwise fallback to a unique color
+                    let cfg;
+                    if (r.cfg) {
+                        cfg = r.cfg;
+                    } else {
+                        const idx = Object.keys(this.remotes).indexOf(pid);
+                        const hue = (idx * 0.37 + 0.58) % 1;
+                        const col = new THREE.Color().setHSL(hue, 0.8, 0.45);
+                        cfg = {
+                            shape: 'classic', fins: 'standard', gondola: 'box', gun: 'single', emblem: 'none',
+                            colors: {
+                                env: '#' + col.getHexString(), gon: '#1a2a55', fin: '#0d1f66',
+                                prop: '#aaaacc', nose: '#1a3377', stripe: '#88aaff', gondola2: '#0d1a44', trim: '#aaddff'
+                            }
+                        };
+                    }
                     const mesh = buildBlimp(cfg);
-                    mesh.position.set(8 + idx * 5, 0, 0);
+                    mesh.position.set(8 + Object.keys(this.remotes).indexOf(pid) * 5, 0, 0);
                     scene.add(mesh);
                     r.mesh = mesh;
                     if (nick) r.nick = nick;
@@ -1937,6 +1932,18 @@
             localDie() {
                 if (this.deadSet.has('_me')) return;
                 this.deadSet.add('_me');
+                // ── FIX BUG 3: broadcast final stats before dying ──
+                const myStats = {
+                    score, kills, wave,
+                    acc: shotsFired > 0 ? Math.round(shotsHit / shotsFired * 100) : 0
+                };
+                const statsMsg = { type: 'stats', pid: this.myId, stats: myStats };
+                if (this.role === 'host') this.broadcast(statsMsg);
+                else this.sendToHost(statsMsg);
+                // Also store our own stats in remotes-like structure for host
+                if (!this.remotes[this.myId]) this.remotes[this.myId] = {};
+                this.remotes[this.myId].finalStats = myStats;
+
                 const msg = { type: 'dead', pid: this.myId };
                 if (this.role === 'host') this.broadcast(msg);
                 else this.sendToHost(msg);
@@ -1962,9 +1969,6 @@
                 this.deadSet = new Set(); this.totalPlayers = 0;
             },
 
-            // ── Autoridade do host: envia snapshot de inimigos ──
-            // Chamado pelo host a cada frame; clientes apenas aplicam.
-            // Formato compacto: array de [id, x, y, z, hp, isBoss, hue, movePhase, strafeAmp, shootCD, lastShot]
             broadcastEnemySnapshot() {
                 if (this.role !== 'host' || !this.isPlaying) return;
                 const snap = enemies.map(en => [
@@ -1979,7 +1983,6 @@
                     +en.userData.strafeAmp.toFixed(2),
                     en.userData.shootCD,
                 ]);
-                // também envia eBullets do host para clientes
                 const ebs = eBullets.map(b => [
                     b.bid,
                     +b.mesh.position.x.toFixed(2),
@@ -1993,14 +1996,10 @@
             applyWorldSnapshot(data) {
                 if (this.role !== 'client' || !this.isPlaying) return;
                 const snap = data.enemies || [];
-
-                // ── inimigos: reconciliar pelo eid ──
                 const snapIds = new Set(snap.map(s => s[0]));
 
-                // remove inimigos que sumiram
                 for (let i = enemies.length - 1; i >= 0; i--) {
                     if (!snapIds.has(enemies[i].userData.eid)) {
-                        // morreu no host — explode localmente
                         const en = enemies[i];
                         const col = en.children[0]?.material?.color?.getHex() || 0xff4400;
                         createExplosion(en.position, col, en.userData.isBoss ? 90 : 22);
@@ -2009,7 +2008,6 @@
                     }
                 }
 
-                // atualiza / cria inimigos presentes no snap
                 const existingMap = {};
                 enemies.forEach(en => existingMap[en.userData.eid] = en);
 
@@ -2017,18 +2015,15 @@
                     const [eid, x, y, z, hp, boss, hue, movePhase, strafeAmp, shootCD] = s;
                     if (existingMap[eid]) {
                         const en = existingMap[eid];
-                        // interpola posição suavemente
                         en.position.x = THREE.MathUtils.lerp(en.position.x, x, 0.3);
                         en.position.y = THREE.MathUtils.lerp(en.position.y, y, 0.3);
                         en.position.z = THREE.MathUtils.lerp(en.position.z, z, 0.3);
                         en.userData.health = hp;
                     } else {
-                        // novo inimigo — cria mesh
                         _spawnEnemyFromSnap(eid, x, y, z, hp, boss, hue, movePhase, strafeAmp, shootCD);
                     }
                 }
 
-                // ── eBullets do host ──
                 const ebs = data.eBullets || [];
                 const ebIds = new Set(ebs.map(b => b[0]));
                 for (let i = eBullets.length - 1; i >= 0; i--) {
@@ -2052,9 +2047,9 @@
             }
         };
 
-        // Sync de estado de jogadores: 20×/s
+        // Sync player state 20x/s
         setInterval(() => { if (MP.isPlaying) MP.sendState(); }, 50);
-        // Sync de mundo (inimigos + eBullets): 20×/s, só host
+        // Sync world (host only) 20x/s
         setInterval(() => { if (MP.isPlaying && MP.role === 'host') MP.broadcastEnemySnapshot(); }, 50);
 
         // ══════════════════════════════════════════════════════════
@@ -2068,6 +2063,7 @@
         }
 
         let _hostNickMap = {};
+        let _hostCfgMap = {};  // FIX BUG 2: store ship configs per peer
 
         function mpHost(serverName) {
             const status = document.getElementById('mp-host-status');
@@ -2081,7 +2077,9 @@
                 MP.hostId = id;
                 MP.roomCode = id;
                 _hostNickMap = {};
+                _hostCfgMap = {};
                 _hostNickMap[id] = playerNick;
+                _hostCfgMap[id] = JSON.parse(JSON.stringify(ship)); // host's own ship config
                 document.getElementById('mp-room-code').textContent = id;
                 document.getElementById('mp-host-setup').style.display = 'none';
                 document.getElementById('mp-host-waiting').style.display = 'block';
@@ -2100,8 +2098,10 @@
                 conn.on('data', data => {
                     if (data.type === 'nick') {
                         _hostNickMap[conn.peer] = data.nick;
-                        if (!MP.remotes[conn.peer]) MP.remotes[conn.peer] = { nick: data.nick, mesh: null, dead: false };
-                        else MP.remotes[conn.peer].nick = data.nick;
+                        // FIX BUG 2: store cfg from joining client
+                        if (data.cfg) _hostCfgMap[conn.peer] = data.cfg;
+                        if (!MP.remotes[conn.peer]) MP.remotes[conn.peer] = { nick: data.nick, mesh: null, dead: false, cfg: data.cfg || null };
+                        else { MP.remotes[conn.peer].nick = data.nick; if (data.cfg) MP.remotes[conn.peer].cfg = data.cfg; }
                         _updateHostPlayerList();
                         MP.broadcast({ type: 'join_info', players: Object.values(_hostNickMap) });
                     } else {
@@ -2111,6 +2111,7 @@
                 conn.on('close', () => {
                     delete MP.conns[conn.peer];
                     delete _hostNickMap[conn.peer];
+                    delete _hostCfgMap[conn.peer];
                     if (MP.isPlaying) {
                         if (!MP.deadSet.has(conn.peer)) MP._handleRemoteDead(conn.peer);
                     } else {
@@ -2152,7 +2153,8 @@
                 const conn = MP.peer.connect(hostCode, { reliable: true });
                 MP.conns[hostCode] = conn;
                 conn.on('open', () => {
-                    conn.send({ type: 'nick', nick: playerNick });
+                    // FIX BUG 2: send ship config along with nick
+                    conn.send({ type: 'nick', nick: playerNick, cfg: JSON.parse(JSON.stringify(ship)) });
                     status.textContent = 'Conectado! Aguardando host...'; status.className = 'mp-status ok';
                     document.getElementById('mp-join-setup').style.display = 'none';
                     document.getElementById('mp-join-lobby').style.display = 'block';
@@ -2212,13 +2214,17 @@
             }
             const nickMap = Object.assign({}, _hostNickMap);
             nickMap[MP.myId] = playerNick;
+            const cfgMap = Object.assign({}, _hostCfgMap);
+            cfgMap[MP.myId] = JSON.parse(JSON.stringify(ship));
             const total = Object.keys(nickMap).length;
             MP.totalPlayers = total;
             for (const pid in nickMap) {
                 if (pid === MP.myId) continue;
-                if (!MP.remotes[pid]) MP.remotes[pid] = { nick: nickMap[pid], mesh: null, dead: false };
+                if (!MP.remotes[pid]) MP.remotes[pid] = { nick: nickMap[pid], mesh: null, dead: false, cfg: cfgMap[pid] || null };
+                else MP.remotes[pid].cfg = cfgMap[pid] || null;
             }
-            MP.broadcast({ type: 'start', total, nickMap });
+            // FIX BUG 2: include cfgMap in start packet
+            MP.broadcast({ type: 'start', total, nickMap, cfgMap });
             closeMP();
             MP.isPlaying = true;
             startGame();
@@ -2293,7 +2299,6 @@
             colors: { env: '#e63333', gon: '#8B4513', fin: '#2244dd', prop: '#cccccc', nose: '#aa2222', stripe: '#FFD700', gondola2: '#5a2d0c', trim: '#ffffff' }
         };
 
-        // Gameplay modifiers from parts
         function getShipStats() {
             let speed = 32, fireCD = 250, armor = 1;
             if (ship.gun === 'double') fireCD = 210;
@@ -2309,15 +2314,14 @@
         // THREE.JS SETUP
         // ══════════════════════════════════════════════════════════
         let scene, camera, renderer, player, previewShip;
-        let bullets = [], eBullets = [], enemies = [], clouds = [], particles = [], powerups = [], scenery = [];
+        let bullets = [], eBullets = [], remoteBullets = [], enemies = [], clouds = [], particles = [], powerups = [], scenery = [];
         let sunLight, timeOfDay = 0.3;
         let groundMesh = null;
 
-        // ── Orbital camera for menu ──
         const orbit = {
             active: false,
-            theta: 0.55,    // horizontal angle (radians)
-            phi: 0.28,      // vertical angle (radians, 0=top)
+            theta: 0.55,
+            phi: 0.28,
             radius: 26,
             lastX: 0, lastY: 0,
             targetTheta: 0.55,
@@ -2336,7 +2340,6 @@
         const mat = (c, flat = true) => new THREE.MeshLambertMaterial({ color: c, flatShading: flat });
         const matBright = (c) => new THREE.MeshBasicMaterial({ color: c });
 
-        // ── Cel-shading outlines (backface inflate technique) ──
         const outlineMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
 
         function addOutline(mesh, thickness) {
@@ -2367,7 +2370,6 @@
             renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
             renderer.shadowMap.enabled = false;
 
-            // Lighting
             scene.add(new THREE.AmbientLight(0xfff8e8, .55));
             sunLight = new THREE.DirectionalLight(0xffe8c0, 1.1);
             sunLight.position.set(60, 120, 80); scene.add(sunLight);
@@ -2396,8 +2398,6 @@
         // SCENERY
         // ══════════════════════════════════════════════════════════
         function spawnScenery() {
-            // ── Ground plane far below ──
-            // Main flat ground
             const groundGeo = new THREE.PlaneGeometry(1800, 1400, 1, 1);
             const groundMat = new THREE.MeshLambertMaterial({ color: 0x3a7a2a, flatShading: false });
             groundMesh = new THREE.Mesh(groundGeo, groundMat);
@@ -2405,14 +2405,12 @@
             groundMesh.position.set(0, -280, -400);
             scene.add(groundMesh);
 
-            // Scrolling ground tile group (so it feels infinite)
             const groundGroup = new THREE.Group();
             groundGroup.userData.scroll = true;
             groundGroup.userData.isGround = true;
             scene.add(groundGroup);
             scenery.push(groundGroup);
 
-            // ── Tiny villages (clusters of little boxes) ──
             for (let v = 0; v < 12; v++) {
                 const vg = new THREE.Group();
                 const vx = (Math.random() - 0.5) * 1400;
@@ -2430,23 +2428,19 @@
                     const bz = (Math.random() - 0.5) * 20;
                     wall.position.set(bx, -277 + bh * 0.5, bz);
                     vg.add(wall);
-                    // tiny peaked roof
                     const roof = new THREE.Mesh(G.cone, new THREE.MeshLambertMaterial({ color: roofCol, flatShading: true }));
                     roof.scale.set(bw * 0.7, bh * 0.55, bd * 0.7);
                     roof.position.set(bx, -277 + bh + bh * 0.28, bz);
                     vg.add(roof);
                 }
-                // road line (thin flat box)
                 const road = new THREE.Mesh(G.box, new THREE.MeshLambertMaterial({ color: 0x9b8c6e, flatShading: true }));
                 road.scale.set(3, 0.3, 30); road.position.set(0, -279.8, 0); vg.add(road);
-
                 vg.position.set(vx, 0, vz);
                 vg.userData.scroll = true;
                 applyOutlines(vg, 1.08);
                 scene.add(vg); scenery.push(vg);
             }
 
-            // ── Tiny trees scattered around ──
             for (let t = 0; t < 60; t++) {
                 const tg = new THREE.Group();
                 const trunkH = 3 + Math.random() * 5;
@@ -2475,7 +2469,6 @@
                 scene.add(tg); scenery.push(tg);
             }
 
-            // ── Hot air balloon decorations (background) ──
             for (let i = 0; i < 5; i++) {
                 const bg = new THREE.Group();
                 const env = new THREE.Mesh(G.sphere, mat(new THREE.Color().setHSL(Math.random(), 0.8, 0.55)));
@@ -2496,53 +2489,44 @@
             const sc = isBoss ? 2.0 : 1;
             const c = cfg.colors;
 
-            // — Envelope (balloon body) —
             let envelopeGeo;
             if (cfg.shape === 'fat') { envelopeGeo = new THREE.Mesh(G.sphere, mat(c.env)); envelopeGeo.scale.set(5 * sc, 5 * sc, 8 * sc); }
             else if (cfg.shape === 'sleek') { envelopeGeo = new THREE.Mesh(G.sphere, mat(c.env)); envelopeGeo.scale.set(3.2 * sc, 3.2 * sc, 10 * sc); }
             else if (cfg.shape === 'double') {
-                // double balloon
                 const e1 = new THREE.Mesh(G.sphere, mat(c.env)); e1.scale.set(3.5 * sc, 3.5 * sc, 5 * sc); e1.position.z = 3 * sc; g.add(e1);
                 const e2 = new THREE.Mesh(G.sphere, mat(c.stripe || c.env)); e2.scale.set(3.2 * sc, 3.2 * sc, 5 * sc); e2.position.z = -3 * sc; g.add(e2);
                 envelopeGeo = null;
             } else { envelopeGeo = new THREE.Mesh(G.sphere, mat(c.env)); envelopeGeo.scale.set(4 * sc, 4 * sc, 8 * sc); }
             if (envelopeGeo) g.add(envelopeGeo);
 
-            // Stripe band
             if (c.stripe && cfg.shape !== 'double') {
                 const stripe = new THREE.Mesh(new THREE.TorusGeometry(4 * sc, .45 * sc, 6, 16), mat(c.stripe));
                 stripe.rotation.x = Math.PI / 2; stripe.position.z = 0; g.add(stripe);
             }
 
-            // — Nose —
             const noseM = mat(c.nose || c.env);
             const nose = new THREE.Mesh(G.oct, noseM);
             nose.scale.set(1.6 * sc, 1.6 * sc, 2.2 * sc);
             nose.position.z = -(cfg.shape === 'sleek' ? 10 : 8) * sc; g.add(nose);
 
-            // — Gondola (cabin) —
             let gonH = 1 * sc, gonW = 1.5 * sc, gonD = 3 * sc;
             if (cfg.gondola === 'sleek') { gonW = 1.1 * sc; gonD = 3.8 * sc; }
             if (cfg.gondola === 'open') { gonH = 0.6 * sc; gonW = 1.8 * sc; }
             const gon = new THREE.Mesh(G.box, mat(c.gon));
             gon.scale.set(gonW, gonH, gonD); gon.position.set(0, -3.6 * sc, 0); g.add(gon);
-            // gondola detail
             const gonDetail = new THREE.Mesh(G.box, mat(c.gondola2 || '#5a2d0c'));
             gonDetail.scale.set(gonW * .8, .3 * sc, gonD * .8); gonDetail.position.set(0, (-3.6 + gonH * .5 + .15) * sc, 0); g.add(gonDetail);
-            // windows
             [-1.2, 0, 1.2].forEach(zo => {
                 const win = new THREE.Mesh(G.box, mat(c.trim || '#aaccee'));
                 win.scale.set(.22, .32, .05); win.position.set(gonW / 2 + .02, (-3.6) * sc, zo * sc); g.add(win);
             });
 
-            // — Ropes —
             const ropeM = mat(0x887755);
             [[-1 * sc, -2.8 * sc, 1.2 * sc], [1 * sc, -2.8 * sc, 1.2 * sc], [-1 * sc, -2.8 * sc, -1.2 * sc], [1 * sc, -2.8 * sc, -1.2 * sc]].forEach(([rx, ry, rz]) => {
                 const rope = new THREE.Mesh(new THREE.CylinderGeometry(.05 * sc, .05 * sc, 1.5 * sc, 4), ropeM);
                 rope.position.set(rx, ry, rz); rope.rotation.z = .3 * Math.sign(rx); g.add(rope);
             });
 
-            // — Fins —
             const finM = mat(c.fin);
             if (cfg.fins !== 'none') {
                 const finConfigs = cfg.fins === 'delta' ?
@@ -2557,9 +2541,7 @@
                 });
             }
 
-            // — Propeller hub & prop —
             const hub = new THREE.Mesh(G.box, mat(0x222233)); hub.scale.set(.6 * sc, .6 * sc, 1 * sc); hub.position.set(0, 0, 7.6 * sc); g.add(hub);
-            // Multi-blade prop based on gun type
             const propBlades = cfg.gun === 'gatling' ? 4 : 2;
             const propG = new THREE.Group(); propG.name = 'prop'; propG.position.set(0, 0, 8.2 * sc);
             for (let b = 0; b < propBlades; b++) {
@@ -2568,7 +2550,6 @@
             }
             g.add(propG);
 
-            // — Gun mount —
             if (cfg.gun === 'single') {
                 const barrel = new THREE.Mesh(G.box, mat(0x444455)); barrel.scale.set(.35 * sc, .35 * sc, 2.2 * sc); barrel.position.set(0, -4.5 * sc, -4 * sc); g.add(barrel);
             } else if (cfg.gun === 'double') {
@@ -2584,7 +2565,6 @@
                 }
             }
 
-            // — Boss extras —
             if (isBoss) {
                 const spikes = [[6 * sc, -2 * sc, -3 * sc], [- 6 * sc, -2 * sc, -3 * sc], [0, 5 * sc, -2 * sc], [0, -5 * sc, -2 * sc]];
                 spikes.forEach(([sx, sy, sz]) => {
@@ -2594,7 +2574,6 @@
                 const ring = new THREE.Mesh(G.torus, mat(0xff3300)); ring.scale.set(6 * sc, 6 * sc, 6 * sc); ring.rotation.x = Math.PI / 2; ring.position.z = 2 * sc; g.add(ring);
             }
 
-            // — Emblem —
             if (cfg.emblem && cfg.emblem !== 'none') {
                 const emblemColors = { star: 0xFFD700, skull: 0xffffff, bolt: 0x00ccff };
                 const em = new THREE.Mesh(G.oct, matBright(emblemColors[cfg.emblem] || 0xFFD700));
@@ -2606,7 +2585,6 @@
             g.userData.maxHealth = isBoss ? 24 : 3;
             g.userData.isBoss = isBoss;
 
-            // Cel-shading outline on the whole dirigível
             applyOutlines(g, isBoss ? 1.055 : 1.075);
 
             return g;
@@ -2662,7 +2640,6 @@
         // UI SETUP
         // ══════════════════════════════════════════════════════════
         function setupUI() {
-            // Tabs
             document.querySelectorAll('.mtab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     document.querySelectorAll('.mtab').forEach(t => t.classList.remove('active'));
@@ -2672,7 +2649,6 @@
                 });
             });
 
-            // Part selectors
             function setupParts(containerID, key) {
                 document.querySelectorAll(`#${containerID} .part-btn`).forEach(btn => {
                     btn.addEventListener('click', () => {
@@ -2689,7 +2665,6 @@
             setupParts('gun-btns', 'gun');
             setupParts('emblem-btns', 'emblem');
 
-            // Colors
             const colorMap = { ['c-env']: 'env', ['c-gon']: 'gon', ['c-fin']: 'fin', ['c-prop']: 'prop', ['c-nose']: 'nose', ['c-stripe']: 'stripe', ['c-gondola2']: 'gondola2', ['c-trim']: 'trim' };
             Object.entries(colorMap).forEach(([id, key]) => {
                 document.getElementById(id).addEventListener('input', e => { ship.colors[key] = e.target.value; buildPreview(); });
@@ -2699,7 +2674,6 @@
             document.getElementById('btn-restart').addEventListener('click', restartGame);
             document.getElementById('btn-menu').addEventListener('click', backToMenu);
 
-            // ── Orbital camera mouse drag (menu only) ──
             const canvas = document.getElementById('gc');
             canvas.addEventListener('mousedown', e => {
                 if (state !== S.MENU) return;
@@ -2717,13 +2691,11 @@
                 orbit.targetPhi = Math.max(0.05, Math.min(1.1, orbit.targetPhi + dy * 0.005));
             });
             window.addEventListener('mouseup', () => { orbit.active = false; });
-            // scroll to zoom
             canvas.addEventListener('wheel', e => {
                 if (state !== S.MENU) return;
                 orbit.radius = Math.max(10, Math.min(55, orbit.radius + e.deltaY * 0.04));
                 e.preventDefault();
             }, { passive: false });
-            // touch drag support
             let lastTouchX = 0, lastTouchY = 0;
             canvas.addEventListener('touchstart', e => {
                 if (state !== S.MENU) return;
@@ -2777,7 +2749,6 @@
             puUI('shield', pwShield, 'pu-shield', 'pu-shield-t');
             puUI('spread', pwSpread, 'pu-spread', 'pu-spread-t');
             puUI('inferno', pwInferno, 'pu-inferno', 'pu-inferno-t');
-            // boss bar
             const boss = enemies.find(e => e.userData.isBoss);
             const bb = document.getElementById('boss-bar');
             if (boss) {
@@ -2791,7 +2762,6 @@
             else { ic.classList.remove('active'); ti.style.display = 'none'; }
         }
 
-        // ── Nick labels above blimps ──
         let nickCanvas, nickCtx;
         function initNickCanvas() {
             nickCanvas = document.getElementById('nick-canvas');
@@ -2817,13 +2787,11 @@
             if (!MP.isPlaying || !nickCtx) return;
             nickCtx.clearRect(0, 0, nickCanvas.width, nickCanvas.height);
 
-            // Local player nick
             if (player) {
                 const screenPos = worldToScreen(player.position.clone().add(new THREE.Vector3(0, 4, 0)));
                 if (!screenPos.behind) drawNickLabel(playerNick, screenPos.x, screenPos.y, '#44FF88');
             }
 
-            // Remote players
             for (const id in MP.remotes) {
                 const rp = MP.remotes[id];
                 if (!rp.mesh) continue;
@@ -2840,7 +2808,6 @@
             const w = nickCtx.measureText(nick).width + 18;
             const h = 22;
             const rx = x - w / 2, ry = y - h / 2, r = 5;
-            // Background pill
             nickCtx.fillStyle = 'rgba(8,14,38,0.85)';
             nickCtx.beginPath();
             if (nickCtx.roundRect) {
@@ -2858,7 +2825,6 @@
                 nickCtx.closePath();
             }
             nickCtx.fill();
-            // Border
             nickCtx.strokeStyle = color;
             nickCtx.lineWidth = 1.5;
             nickCtx.beginPath();
@@ -2877,7 +2843,6 @@
                 nickCtx.closePath();
             }
             nickCtx.stroke();
-            // Text
             nickCtx.fillStyle = color;
             nickCtx.fillText(nick, x, y);
         }
@@ -2899,7 +2864,6 @@
             document.getElementById('mp-waiting-overlay').classList.remove('show');
             document.getElementById('mp-gowindow').style.display = 'none';
             document.getElementById('gowindow').style.display = 'none';
-            // Nick canvas: only show in multiplayer
             if (MP.isPlaying) {
                 document.getElementById('nick-canvas').style.display = 'block';
                 if (!nickCtx) initNickCanvas();
@@ -2908,7 +2872,6 @@
             }
             scene.remove(previewShip); clearEntities();
             player = buildBlimp(ship); player.position.set(0, 0, 0); scene.add(player);
-            // Spawn remote player meshes if multiplayer
             if (MP.isPlaying) MP.spawnAllRemotes();
             camera.position.set(0, 6, 28); camera.lookAt(0, 0, -100);
             showWave('ONDA 1'); notify('Boa sorte, piloto! ✈', 'blue');
@@ -2921,7 +2884,7 @@
             if (MP.isPlaying) {
                 MP.deadSet = new Set();
             }
-            player = null; // ensure clean state
+            player = null;
             startGame();
         }
         function nextWave() {
@@ -2932,18 +2895,17 @@
             score += 60 * (wave - 1);
             timeOfDay = ((wave * .17) % 1);
             updateHUD();
-            // Host sincroniza wave com clientes
             if (MP.isPlaying && MP.role === 'host') {
                 MP.broadcast({ type: 'wave', w: wave, isBoss });
             }
         }
-        // ── CRASH SEQUENCE STATE ──
+
         const crashState = {
             time: 0,
-            totalDuration: 4.2,   // seconds until game-over menu
+            totalDuration: 4.2,
             startPos: null,
             startRot: null,
-            groundY: -22,         // y where "ground" is for dramatic purposes
+            groundY: -22,
             smokeTimer: 0,
             fireTimer: 0,
             exploded: false,
@@ -2951,7 +2913,6 @@
             camStartLook: null,
         };
 
-        // Cel-shaded smoke puff
         function spawnSmokePuff(pos, size, col) {
             const m = new THREE.Mesh(
                 G.sphere,
@@ -2966,7 +2927,6 @@
             particles.push({ mesh: m, vel, rot: new THREE.Vector3(0, 0, .02), life: 1.8, isSmoke: true, initSize: size });
         }
 
-        // Cel-shaded fire chunk
         function spawnFireChunk(pos, size) {
             const fireCols = [0xff2200, 0xff6600, 0xffaa00, 0xffdd00];
             const col = fireCols[Math.floor(Math.random() * fireCols.length)];
@@ -2983,17 +2943,20 @@
         }
 
         function gameOver() {
-            // Hide gameplay HUD immediately
             document.getElementById('hud').style.display = 'none';
             document.getElementById('xhair').style.display = 'none';
             document.getElementById('pubar').style.display = 'none';
 
-            // Disable all shooting / enemy interaction
             bullets.forEach(b => scene.remove(b.mesh)); bullets = [];
             eBullets.forEach(b => scene.remove(b.mesh)); eBullets = [];
-            enemies.forEach(e => scene.remove(e)); enemies = [];
+            // ── FIX BUG 4: do NOT remove enemies when local player dies in MP ──
+            // Enemies keep going so surviving players can still play
+            if (!MP.isPlaying) {
+                enemies.forEach(e => scene.remove(e)); enemies = [];
+            }
+            // Clear remote bullets visual
+            remoteBullets.forEach(b => scene.remove(b.mesh)); remoteBullets = [];
 
-            // Init crash state
             crashState.time = 0;
             crashState.exploded = false;
             crashState.smokeTimer = 0;
@@ -3002,11 +2965,9 @@
             crashState.startRot = player.rotation.clone();
             crashState.camStartPos = camera.position.clone();
 
-            // Initial hit explosion + sounds
             createExplosion(player.position, 0xff6600, 18);
             sfxExplode(1.0);
 
-            // Multiplayer: notify others we died
             if (MP.isPlaying) {
                 MP.localDie();
             }
@@ -3019,44 +2980,34 @@
             const t = crashState.time;
             const dur = crashState.totalDuration;
 
-            // ── 1. Move the blimp downward + tumble ──
             if (!crashState.exploded) {
                 const fallSpeed = 3.5 + t * 6;
                 player.position.y -= fallSpeed * dt;
-                // Tumble forward and sideways
                 player.rotation.z += dt * (1.2 + t * .8);
                 player.rotation.x += dt * (0.6 + t * .4);
-                // Drift slightly sideways
                 player.position.x += Math.sin(t * 2.1) * dt * 0.8;
-                // Prop still spinning (visual detail)
                 const prop = player.getObjectByName('prop');
                 if (prop) prop.rotation.z += 8 * dt;
 
-                // Smoke trail continuously
                 crashState.smokeTimer -= dt;
                 if (crashState.smokeTimer <= 0) {
                     crashState.smokeTimer = .06 + Math.random() * .04;
                     const smokeSz = 1.2 + t * .6;
-                    // Dark smoke
                     spawnSmokePuff(player.position, smokeSz, new THREE.Color().setHSL(0, 0, .18 + Math.random() * .15));
-                    // Orange-tinted smoke near start
                     if (t < 1.5) spawnSmokePuff(player.position, smokeSz * .7, new THREE.Color(0.9, 0.35, 0.05));
                 }
 
-                // Fire chunks
                 crashState.fireTimer -= dt;
                 if (crashState.fireTimer <= 0) {
                     crashState.fireTimer = .08 + Math.random() * .07;
                     spawnFireChunk(player.position, .6 + Math.random() * .9);
-                    if (t > 1.0) spawnFireChunk(player.position, .4 + Math.random() * .5); // more fire later
+                    if (t > 1.0) spawnFireChunk(player.position, .4 + Math.random() * .5);
                 }
 
-                // ── 2. Ground impact ──
                 if (player.position.y <= crashState.groundY) {
                     crashState.exploded = true;
                     player.position.y = crashState.groundY;
 
-                    // Big cel-shaded fireball explosion
                     for (let r = 0; r < 4; r++) {
                         const delay = r * 90;
                         setTimeout(() => {
@@ -3068,10 +3019,8 @@
                         }, delay);
                     }
 
-                    // Spawn big fire ball chunks
                     for (let i = 0; i < 30; i++) spawnFireChunk(player.position, 1.2 + Math.random() * 2.0);
 
-                    // Huge smoke mushroom
                     for (let i = 0; i < 12; i++) {
                         setTimeout(() => {
                             const p = player ? player.position.clone() : new THREE.Vector3(crashState.startPos.x, crashState.groundY, crashState.startPos.z);
@@ -3082,7 +3031,6 @@
                     scene.remove(player);
                     player = null;
 
-                    // Screen flash
                     const fl = document.getElementById('dmgflash');
                     fl.style.transition = 'none';
                     fl.style.background = 'rgba(255,160,0,0.85)';
@@ -3093,41 +3041,37 @@
                 }
             }
 
-            // ── 3. Camera pan: tilt down to show the crash ──
-            // Phase 1 (0 → 1.5s): follow the blimp falling
-            // Phase 2 (1.5s → end): slowly pan down/around the crash site
             const camTarget = crashState.exploded
                 ? new THREE.Vector3(crashState.startPos.x, crashState.groundY, crashState.startPos.z - 10)
                 : (player ? player.position.clone() : new THREE.Vector3(crashState.startPos.x, crashState.groundY, crashState.startPos.z));
 
             if (!crashState.exploded) {
-                // Follow the blimp down
                 camera.position.x = THREE.MathUtils.lerp(camera.position.x, camTarget.x * .4, .06);
                 camera.position.y = THREE.MathUtils.lerp(camera.position.y, camTarget.y + 14, .05);
                 camera.position.z = THREE.MathUtils.lerp(camera.position.z, camTarget.z + 30, .04);
                 camera.lookAt(camTarget);
             } else {
-                // Slowly pan to reveal the burning wreck from a dramatic low angle
-                const elapsed = t - (dur - (dur - t) - (crashState.time - t)); // simplified: just use t
                 camera.position.y = THREE.MathUtils.lerp(camera.position.y, crashState.groundY + 8, .025);
                 camera.position.x = THREE.MathUtils.lerp(camera.position.x, crashState.startPos.x + 6, .03);
                 camera.lookAt(camTarget.x, camTarget.y + 3, camTarget.z);
             }
 
-            // Continue rendering background particles + clouds
+            // ── FIX BUG 4: in MP, keep enemy logic running so other players can still play ──
+            if (MP.isPlaying) {
+                updateEnemies(dt);
+                updateEBullets(dt); // still need to tick eBullets
+            }
+
             updateParticles(dt);
             updateClouds(dt, false);
             updateScenery(dt, false);
 
-            // ── 4. Show game over menu after full duration ──
             if (t >= dur) {
                 state = S.GAMEOVER;
                 if (MP.isPlaying) {
-                    // MP: show waiting overlay, check if all already dead
                     document.getElementById('mp-waiting-overlay').classList.add('show');
                     MP._checkAllDead();
                 } else {
-                    // Singleplayer game over
                     document.getElementById('go-score').textContent = score;
                     document.getElementById('go-kills').textContent = kills;
                     document.getElementById('go-wave').textContent = wave;
@@ -3136,6 +3080,7 @@
                 }
             }
         }
+
         function backToMenu() {
             document.getElementById('gowindow').style.display = 'none';
             document.getElementById('nick-canvas').style.display = 'none';
@@ -3150,6 +3095,7 @@
         }
 
         function showMPGameOver() {
+            // ── FIX BUG 3: use local stats (always correct for this player) ──
             document.getElementById('mp-go-score').textContent = score;
             document.getElementById('mp-go-kills').textContent = kills;
             document.getElementById('mp-go-wave').textContent = wave;
@@ -3160,7 +3106,6 @@
         }
 
         document.getElementById('mp-btn-back-server').addEventListener('click', () => {
-            // Return to multiplayer lobby — reopen the MP modal and reset game state
             document.getElementById('mp-gowindow').style.display = 'none';
             document.getElementById('mp-waiting-overlay').classList.remove('show');
             document.getElementById('menu').style.display = 'block';
@@ -3170,10 +3115,8 @@
             orbit.phi = 0.28; orbit.targetPhi = 0.28;
             orbit.radius = 26;
             state = S.MENU;
-            // Keep MP connection alive, reopen MP modal
             MP.isPlaying = false;
             MP.deadSet = new Set();
-            // Reset remote meshes for potential rematch
             for (const id in MP.remotes) {
                 if (MP.remotes[id].mesh) { scene.remove(MP.remotes[id].mesh); MP.remotes[id].mesh = null; }
                 if (MP.remotes[id]) MP.remotes[id].dead = false;
@@ -3193,21 +3136,19 @@
             state = S.MENU;
             MP.reset();
         });
+
         function clearEntities() {
-            [...bullets, ...eBullets].forEach(b => scene.remove(b.mesh));
+            [...bullets, ...eBullets, ...remoteBullets].forEach(b => scene.remove(b.mesh));
             enemies.forEach(e => scene.remove(e));
             clouds.forEach(c => scene.remove(c));
             particles.forEach(p => scene.remove(p.mesh));
             powerups.forEach(p => scene.remove(p));
-            bullets = []; eBullets = []; enemies = []; clouds = []; particles = []; powerups = [];
-            // Clear nick canvas
+            bullets = []; eBullets = []; remoteBullets = []; enemies = []; clouds = []; particles = []; powerups = [];
             if (nickCtx) nickCtx.clearRect(0, 0, nickCanvas.width, nickCanvas.height);
-            // Remove remote player meshes but keep connections; reset dead for restart
             for (const id in MP.remotes) {
                 if (MP.remotes[id].mesh) { scene.remove(MP.remotes[id].mesh); MP.remotes[id].mesh = null; }
                 MP.remotes[id].dead = false;
             }
-            // keep scenery, just reset positions for scrollable non-ground items
             scenery.forEach(s => {
                 if (s.userData.isGround) return;
                 if (s.userData.isBgBalloon || s.userData.scroll) s.position.z = Math.max(s.position.z, -400);
@@ -3222,6 +3163,7 @@
             normal: new THREE.MeshBasicMaterial({ color: 0xffff44 }),
             rapid: new THREE.MeshBasicMaterial({ color: 0xff8800 }),
             inferno: new THREE.MeshBasicMaterial({ color: 0xff3300 }),
+            remote: new THREE.MeshBasicMaterial({ color: 0x44ffff }),  // cyan for remote player bullets
         };
         const bulletGeo = new THREE.BoxGeometry(.4, .4, 2.8);
 
@@ -3238,11 +3180,31 @@
                 const m = new THREE.Mesh(bulletGeo, bMat);
                 m.position.copy(player.position); m.position.z -= 8; m.position.y -= 1;
                 scene.add(m); bullets.push({ mesh: m, speed: 110, dx: Math.sin(ang) * 42, isInferno: pwInferno > 0 });
+
+                // ── FIX BUG 1: broadcast bullet to other players ──
+                if (MP.isPlaying) {
+                    const bulletMsg = {
+                        type: 'rbullet',
+                        pid: MP.myId,
+                        x: m.position.x, y: m.position.y, z: m.position.z,
+                        dx: Math.sin(ang) * 42,
+                        isInferno: pwInferno > 0
+                    };
+                    if (MP.role === 'host') MP.broadcast(bulletMsg);
+                    else MP.sendToHost(bulletMsg);
+                }
             });
         }
 
+        // ── FIX BUG 1: spawn a visual-only remote bullet ──
+        function _spawnRemoteBullet(x, y, z, dx, isInferno) {
+            const m = new THREE.Mesh(bulletGeo, bulletMats.remote);
+            m.position.set(x, y, z);
+            scene.add(m);
+            remoteBullets.push({ mesh: m, speed: 110, dx: dx || 0 });
+        }
+
         function enemyShoot(en) {
-            // No MP, só o host cria eBullets (sincronizados via snapshot)
             if (MP.isPlaying && MP.role !== 'host') return;
             const isBoss = en.userData.isBoss;
             const m = new THREE.Mesh(new THREE.BoxGeometry(.6, .6, 2.8), new THREE.MeshBasicMaterial({ color: isBoss ? 0xff0000 : 0xff4444 }));
@@ -3258,12 +3220,10 @@
         const PU_EMOJI = { rapid: '⚡', shield: '🛡️', spread: '💥', repair: '❤️', inferno: '🔥' };
         const PU_LABEL = { rapid: 'Tiro Rápido!', shield: 'Escudo Ativo!', spread: 'Spread Shot!', repair: 'Casco Reparado!', inferno: 'Modo Inferno!' };
 
-        // ── ID único por inimigo (usado para sincronizar no MP) ──
         let _eidCounter = 0;
-        let _bidCounter = 0;  // ID único por eBullet
+        let _bidCounter = 0;
 
         function spawnEnemy(isBoss = false) {
-            // No MP, só o host spawna
             if (MP.isPlaying && MP.role !== 'host') return;
             const hue = Math.random();
             const ec = {
@@ -3286,7 +3246,6 @@
             scene.add(e); enemies.push(e);
         }
 
-        // Cria inimigo no cliente a partir do snapshot do host
         function _spawnEnemyFromSnap(eid, x, y, z, hp, boss, hue, movePhase, strafeAmp, shootCD) {
             const ec = {
                 shape: boss ? 'fat' : 'classic',
@@ -3310,12 +3269,8 @@
             scene.add(e); enemies.push(e);
         }
 
-        // Host recebe "shoot" de um cliente e resolve colisão
         function _clientShoot(data) {
-            // data: { x, y, z, dx, isInferno }
-            // Cria bullet temporário para resolução
             const bx = data.x, by = data.y, bz = data.z, bdx = data.dx || 0;
-            // Checa colisão com todos os inimigos
             for (let j = enemies.length - 1; j >= 0; j--) {
                 const en = enemies[j];
                 const dist = Math.sqrt(
@@ -3324,7 +3279,6 @@
                     (bz - en.position.z) ** 2
                 );
                 if (dist < en.userData.radius + 6) {
-                    // hit! (raio maior para compensar latência)
                     en.userData.health--;
                     if (en.userData.health <= 0) {
                         const col = en.children[0]?.material?.color?.getHex() || 0xff4400;
@@ -3353,7 +3307,6 @@
                 p.position.set((Math.random() - .5) * sz * 1.6, (Math.random() - .5) * sz * .7, (Math.random() - .5) * sz * .5); g.add(p);
             }
             if (storm) {
-                // lightning bolt visual
                 const bolt = new THREE.Mesh(G.box, new THREE.MeshBasicMaterial({ color: 0xccccff }));
                 bolt.scale.set(.2, 6, .2); bolt.position.set(0, -6, 0); bolt.rotation.z = .3; g.add(bolt);
             }
@@ -3378,7 +3331,6 @@
                 const rot = new THREE.Vector3(Math.random() * .4, Math.random() * .4, Math.random() * .4);
                 scene.add(m); particles.push({ mesh: m, vel, rot, life: 1.2 });
             }
-            // shockwave ring
             const ring = new THREE.Mesh(G.torus, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: .7 }));
             ring.scale.setScalar(.5); ring.position.copy(pos); ring.rotation.x = Math.PI / 2;
             scene.add(ring); particles.push({ mesh: ring, vel: new THREE.Vector3(0, 0, 0), rot: new THREE.Vector3(0, 0, 0), life: 0.7, isRing: true, sc: .5 });
@@ -3398,31 +3350,28 @@
         // ENVIRONMENT / SKY
         // ══════════════════════════════════════════════════════════
         function updateSkyColor(dt) {
-            // Cycle through dawn/day/dusk/night slowly
             timeOfDay = (timeOfDay + dt * .008) % 1;
             let skyColor, sunColor, ambColor;
-            if (timeOfDay < 0.25) {// dawn
+            if (timeOfDay < 0.25) {
                 const t = timeOfDay / .25;
                 skyColor = new THREE.Color().lerpColors(new THREE.Color(0x1a1040), new THREE.Color(0xFF9966), t);
                 sunColor = new THREE.Color(0xff8855); ambColor = new THREE.Color(.4, .35, .5);
-            } else if (timeOfDay < 0.55) {// day
+            } else if (timeOfDay < 0.55) {
                 const t = (timeOfDay - .25) / .3;
                 skyColor = new THREE.Color().lerpColors(new THREE.Color(0xFF9966), new THREE.Color(0x7EC8E3), t);
                 sunColor = new THREE.Color(0xfff0d0); ambColor = new THREE.Color(.55, .55, .5);
-            } else if (timeOfDay < 0.75) {// dusk
+            } else if (timeOfDay < 0.75) {
                 const t = (timeOfDay - .55) / .2;
                 skyColor = new THREE.Color().lerpColors(new THREE.Color(0x7EC8E3), new THREE.Color(0xFF6633), t);
                 sunColor = new THREE.Color(0xff6622); ambColor = new THREE.Color(.5, .4, .35);
-            } else {// night
+            } else {
                 const t = (timeOfDay - .75) / .25;
                 skyColor = new THREE.Color().lerpColors(new THREE.Color(0xFF6633), new THREE.Color(0x0a1030), t);
                 sunColor = new THREE.Color(0x3355aa); ambColor = new THREE.Color(.25, .28, .4);
             }
 
-            // Fog color = exact sky color — chão dissolve perfeitamente no horizonte
             scene.background = skyColor;
             scene.fog.color.copy(skyColor);
-
             sunLight.color = sunColor;
             scene.children.forEach(c => { if (c.isAmbientLight) c.color = ambColor; });
         }
@@ -3437,12 +3386,9 @@
             const dt = Math.min(clock.getDelta(), .05);
 
             if (state === S.MENU) {
-                // Auto-rotate slowly when not dragging
                 if (!orbit.active) orbit.targetTheta += 0.18 * dt;
-                // Smooth interpolation toward target angles
                 orbit.theta += (orbit.targetTheta - orbit.theta) * 0.1;
                 orbit.phi += (orbit.targetPhi - orbit.phi) * 0.1;
-                // Spherical coords → cartesian, orbiting around previewShip
                 const target = previewShip.position;
                 const r = orbit.radius;
                 camera.position.set(
@@ -3451,7 +3397,6 @@
                     target.z + r * Math.sin(orbit.phi) * Math.cos(orbit.theta)
                 );
                 camera.lookAt(target);
-                // Prop spin only, no auto body rotation
                 const p = previewShip.getObjectByName('prop'); if (p) p.rotation.z += 12 * dt;
                 updateClouds(dt, false); updateScenery(dt, false);
             } else if (state === S.PLAYING) {
@@ -3459,7 +3404,15 @@
             } else if (state === S.CRASHING) {
                 updateCrashing(dt);
             } else if (state === S.GAMEOVER) {
-                updateParticles(dt); updateClouds(dt, false); updateScenery(dt, false);
+                // ── FIX BUG 4: in MP GAMEOVER state, keep enemies/clouds/scenery animating for surviving players ──
+                if (MP.isPlaying) {
+                    updateEnemies(dt);
+                    updateEBullets(dt);
+                    updateClouds(dt, false);
+                    updateScenery(dt, false);
+                }
+                updateParticles(dt);
+                if (!MP.isPlaying) { updateClouds(dt, false); updateScenery(dt, false); }
             }
             renderer.render(scene, camera);
         }
@@ -3479,7 +3432,6 @@
                 spawnEnemy(true); bossSpawned = true; notify('⚠ CHEFE APARECEU! Seja cuidadoso!', 'red');
             }
 
-            // Spawn rate scaled to wave but capped
             const spawnRate = Math.min(.008 + wave * .003, .025);
             if (!isBossWave && Math.random() < spawnRate) spawnEnemy();
             if (Math.random() < .055) spawnCloud();
@@ -3488,10 +3440,8 @@
                 spawnPowerup(new THREE.Vector3((Math.random() - .5) * BX * 1.5, (Math.random() - .5) * BY * 1.2, pz));
             }
 
-            // Só host avança onda (clientes recebem via broadcast 'wave')
             if ((!MP.isPlaying || MP.role === 'host') && waveTimer > waveDuration && !(isBossWave && enemies.length > 0)) nextWave();
 
-            // Player movement
             const { speed } = getShipStats();
             const boostMult = iBoost() ? 1.55 : 1;
             const spd = speed * boostMult * dt;
@@ -3502,15 +3452,11 @@
             player.position.y = THREE.MathUtils.clamp(player.position.y + my * spd, -BY, BY);
             player.rotation.z = THREE.MathUtils.lerp(player.rotation.z, -mx * .32, .12);
             player.rotation.x = THREE.MathUtils.lerp(player.rotation.x, my * .22, .12);
-            // Bob
             player.position.y += Math.sin(Date.now() * .0009) * .025;
-            // Wind drift
             player.position.x += Math.sin(windOffset * .8) * .018;
             const prop = player.getObjectByName('prop'); if (prop) prop.rotation.z += 20 * boostMult * dt;
 
-            // Camera follow — in MP show both players; in SP follow only local
             if (MP.isPlaying) {
-                // Find bounding box of all players
                 let minX = player.position.x, maxX = player.position.x;
                 let minY = player.position.y, maxY = player.position.y;
                 for (const id in MP.remotes) {
@@ -3525,7 +3471,6 @@
                 const cx = (minX + maxX) * .5;
                 const cy = (minY + maxY) * .5;
                 const spread = Math.max(maxX - minX, maxY - minY, 12);
-                // Pull camera back more to fit both players
                 const pullback = 28 + spread * .55;
                 camera.position.x = THREE.MathUtils.lerp(camera.position.x, cx * .32, .07);
                 camera.position.y = THREE.MathUtils.lerp(camera.position.y, cy * .32 + 6, .07);
@@ -3538,6 +3483,7 @@
             }
 
             updateBullets(dt);
+            updateRemoteBullets(dt);  // FIX BUG 1
             updateEBullets(dt);
             updateEnemies(dt);
             updateClouds(dt, true);
@@ -3546,13 +3492,11 @@
             updateScenery(dt, true);
             updateHUD();
             updateNickLabels();
-            // Animate remote player props
             for (const id in MP.remotes) {
                 const rp = MP.remotes[id];
                 if (rp.mesh) {
                     const prop = rp.mesh.getObjectByName('prop');
                     if (prop) prop.rotation.z += 12 * dt;
-                    // Bob
                     rp.mesh.position.y += Math.sin(Date.now() * .0009 + rp.mesh.id) * .025;
                 }
             }
@@ -3570,7 +3514,6 @@
 
                 let hit = false;
 
-                // Só o host (ou SP) resolve colisão com inimigos
                 if (!MP.isPlaying || MP.role === 'host') {
                     for (let j = enemies.length - 1; j >= 0; j--) {
                         const en = enemies[j];
@@ -3595,17 +3538,13 @@
                         }
                     }
                 } else {
-                    // Cliente: checa colisão local para feedback visual imediato,
-                    // mas também envia ao host para autoridade
                     for (let j = enemies.length - 1; j >= 0; j--) {
                         const en = enemies[j];
                         if (b.mesh.position.distanceTo(en.position) < en.userData.radius + 4) {
                             hit = true; shotsHit++;
                             scene.remove(b.mesh); bullets.splice(i, 1);
                             if (b.isInferno) createExplosion(b.mesh.position, 0xff4400, 8);
-                            // flash local
                             en.children.forEach(c => { if (c.material && c.material.color) { const oc = c.material.color.clone(); c.material.color.set(0xffffff); setTimeout(() => c.material.color.copy(oc), 90); } });
-                            // Notifica host
                             MP.sendToHost({
                                 type: 'shoot',
                                 x: b.mesh.position.x, y: b.mesh.position.y, z: b.mesh.position.z,
@@ -3619,15 +3558,26 @@
             }
         }
 
+        // ── FIX BUG 1: update remote player bullets (visual only, no collision) ──
+        function updateRemoteBullets(dt) {
+            for (let i = remoteBullets.length - 1; i >= 0; i--) {
+                const b = remoteBullets[i];
+                b.mesh.position.z -= b.speed * dt;
+                if (b.dx) b.mesh.position.x += b.dx * dt;
+                if (b.mesh.position.z < -480) {
+                    scene.remove(b.mesh); remoteBullets.splice(i, 1);
+                }
+            }
+        }
+
         function updateEBullets(dt) {
             for (let i = eBullets.length - 1; i >= 0; i--) {
                 const b = eBullets[i];
-                // Cliente: posição já sincronizada pelo snapshot — só anima localmente para interpolação suave
                 if (!MP.isPlaying || MP.role === 'host') {
                     b.mesh.position.z += b.speed * dt;
                 }
                 if (b.mesh.position.z > 90) { scene.remove(b.mesh); eBullets.splice(i, 1); continue; }
-                // Colisão com jogador local (todos resolvem para si)
+                // Only check collision if local player is still alive
                 if (player && b.mesh.position.distanceTo(player.position) < player.userData.radius + 1.5) {
                     scene.remove(b.mesh); eBullets.splice(i, 1);
                     if (pwShield > 0) { notify('Tiro bloqueado! 🛡️', 'blue'); createExplosion(b.mesh.position, 0x00ccff, 6); }
@@ -3637,7 +3587,8 @@
         }
 
         function updateEnemies(dt) {
-            // Clientes apenas animam props — posição vem do snapshot do host
+            // ── FIX BUG 4: clients animate enemies regardless of local player alive state ──
+            // Clients receive positions from host snapshot — just animate props
             if (MP.isPlaying && MP.role !== 'host') {
                 for (const en of enemies) {
                     const p = en.getObjectByName('prop'); if (p) p.rotation.z += 16 * dt;
@@ -3647,12 +3598,18 @@
 
             const gs = 1 + wave * .05;
 
-            // Host coleta todos os alvos (jogador local + remotos)
+            // ── FIX BUG 4: host collects all ALIVE targets (dead players excluded) ──
             const allTargets = [];
-            if (player) allTargets.push({ pos: player.position, rad: player.userData.radius, isLocal: true });
+            // Only add local player to targets if still alive
+            if (player && state !== S.CRASHING && state !== S.GAMEOVER) {
+                allTargets.push({ pos: player.position, rad: player.userData?.radius || 5.5, isLocal: true });
+            }
             for (const pid in MP.remotes) {
                 const r = MP.remotes[pid];
-                if (r.mesh && !r.dead) allTargets.push({ pos: r.mesh.position, rad: r.mesh.userData?.radius || 3, isLocal: false, pid });
+                // Only target alive remote players
+                if (r.mesh && !r.dead && !MP.deadSet.has(pid)) {
+                    allTargets.push({ pos: r.mesh.position, rad: r.mesh.userData?.radius || 5.5, isLocal: false, pid });
+                }
             }
 
             for (let i = enemies.length - 1; i >= 0; i--) {
@@ -3660,7 +3617,6 @@
                 const spd = en.userData.isBoss ? 20 : 32;
                 en.position.z += spd * gs * dt;
 
-                // Homing: mira no alvo mais próximo
                 if (allTargets.length > 0) {
                     let nearest = allTargets[0];
                     let nearDist = en.position.distanceTo(nearest.pos);
@@ -3673,10 +3629,13 @@
                     const homing = en.userData.isBoss ? .025 : .015;
                     en.position.x += dx * homing + Math.sin(Date.now() * .0015 + en.userData.movePhase) * en.userData.strafeAmp * .03;
                     en.position.y += dy * .01;
+                } else {
+                    // ── FIX BUG 4: no targets alive — enemies just fly forward, don't stop spawning ──
+                    en.position.x += Math.sin(Date.now() * .0015 + en.userData.movePhase) * en.userData.strafeAmp * .03;
                 }
+
                 const p = en.getObjectByName('prop'); if (p) p.rotation.z += 16 * dt;
 
-                // Shooting (host autoridade)
                 const now = Date.now();
                 if (now - en.userData.lastShot > en.userData.shootCD && en.position.z > -300) {
                     en.userData.lastShot = now; enemyShoot(en);
@@ -3686,7 +3645,6 @@
                     }
                 }
 
-                // Colisão com qualquer alvo
                 let collided = false;
                 for (const tgt of allTargets) {
                     if (en.position.distanceTo(tgt.pos) < en.userData.radius + (tgt.rad || 3)) {
@@ -3749,7 +3707,6 @@
                 } else if (p.isSmoke) {
                     p.mesh.position.add(p.vel);
                     p.vel.multiplyScalar(.97);
-                    // Smoke grows and fades
                     const growScale = p.initSize * (1 + (1 - p.life / 1.8) * 2.5);
                     p.mesh.scale.setScalar(growScale);
                     p.mesh.material.opacity = p.life * .55;
@@ -3765,7 +3722,7 @@
             const speed = moving ? 18 : 8;
             for (let i = 0; i < scenery.length; i++) {
                 const s = scenery[i];
-                if (s.userData.isGround) continue; // static ground group, skip
+                if (s.userData.isGround) continue;
                 if (s.userData.scroll) s.position.z += speed * dt;
                 if (s.userData.isBgBalloon) { s.position.y += Math.sin(Date.now() * .0006 + s.userData.bobPhase) * .015; }
                 if (s.position.z > 150) {
