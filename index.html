@@ -1908,10 +1908,10 @@
             },
 
             _checkAllDead() {
-                // Só age depois que a animação de crash terminou
+                // Aguarda a animação de crash terminar antes de mostrar o game over
                 if (state !== S.GAMEOVER) return;
                 if (!this.deadSet.has('_me')) return;
-                // Filtra o próprio ID (localDie adiciona this.myId em remotes)
+                // Exclui o próprio ID (localDie insere this.myId em remotes)
                 const rids = Object.keys(this.remotes).filter(pid => pid !== this.myId);
                 if (rids.length === 0 || rids.every(pid => this.deadSet.has(pid))) {
                     document.getElementById('mp-waiting-overlay').classList.remove('show');
@@ -3205,10 +3205,9 @@
             if (t >= dur) {
                 state = S.GAMEOVER;
                 if (MP.isPlaying) {
-                    // Verifica novamente ao entrar em GAMEOVER —
-                    // se todos já estão mortos, showMPGameOver será chamado pelo _checkAllDead
-                    // O overlay de espera já foi mostrado em localDie(), aqui só garantimos
-                    // que se todos já morreram antes de terminar o crash, o game over aparece.
+                    // Garante que o overlay de espera está visível
+                    document.getElementById('mp-waiting-overlay').classList.add('show');
+                    // Verifica se todos já morreram (state é GAMEOVER agora, guard passa)
                     MP._checkAllDead();
                 } else {
                     document.getElementById('go-score').textContent = score;
