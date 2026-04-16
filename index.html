@@ -2244,8 +2244,14 @@
 
                         updateHUD();
 
-                        const el = document.getElementById('mp-go-score');
-                        if (el) el.textContent = score;
+                        // Salva stats finais no remotes do próprio jogador para showMPGameOver usar
+                        if (!MP.remotes[MP.myId]) MP.remotes[MP.myId] = {};
+                        MP.remotes[MP.myId].finalStats = {
+                            score: data.score,
+                            kills: data.kills,
+                            wave: data.wave,
+                            acc: shotsFired > 0 ? Math.round(shotsHit / shotsFired * 100) : 0
+                        };
 
                         break;
                     }
@@ -3779,6 +3785,17 @@
             }
 
             if (MP.isPlaying) {
+                // Host continua spawning/atualizando inimigos mesmo após morrer
+                if (MP.role === 'host') {
+                    waveTimer += dt;
+                    const isBossWave = wave % 5 === 0;
+                    if (isBossWave && !bossSpawned && enemies.length === 0) {
+                        spawnEnemy(true); bossSpawned = true;
+                    }
+                    const spawnRate = Math.min(.008 + wave * .003, .025);
+                    if (!isBossWave && Math.random() < spawnRate) spawnEnemy();
+                    if (waveTimer > waveDuration && !(isBossWave && enemies.length > 0)) nextWave();
+                }
                 updateEnemies(dt);
                 updateEBullets(dt);
             }
@@ -4217,7 +4234,7 @@
         // ENVIRONMENT / SKY
         // ══════════════════════════════════════════════════════════
         function updateSkyColor(dt) {
-            // O tempo avança constantemente. 
+            // O tempo avança constantemente.
             // Aumente o .008 para um ciclo mais rápido ou diminua para mais lento.
             timeOfDay = (timeOfDay + dt * .004) % 1;
 
