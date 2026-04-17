@@ -4045,7 +4045,7 @@
             const g = new THREE.Group();
             const storm = !init && wave > 1 && Math.random() > 0.75;
             const colCloud = storm ? 0x445577 : new THREE.Color().setHSL(.6, .05 + Math.random() * .05, .85 + Math.random() * .12);
-            const mCloud = new THREE.MeshLambertMaterial({ color: colCloud, flatShading: true, transparent: true, opacity: storm ? .92 : .82 });
+            const mCloud = new THREE.MeshLambertMaterial({ color: colCloud, flatShading: true, transparent: true, opacity: storm ? .92 : .82, depthWrite: false });
             const n = 4 + Math.floor(Math.random() * 5);
             for (let i = 0; i < n; i++) {
                 const p = new THREE.Mesh(G.sphere, mCloud);
@@ -4058,6 +4058,8 @@
             }
             g.position.set((Math.random() - .5) * 220, (Math.random() - .5) * 130, init ? -Math.random() * 480 : -410 - Math.random() * 120);
             g.userData.isStorm = storm; g.userData.radius = storm ? 14 : 10; g.userData.init = init;
+            g.userData.baseMat = mCloud;
+            g.userData.baseOpacity = storm ? .92 : .82;
             scene.add(g); clouds.push(g);
         }
 
@@ -4573,14 +4575,42 @@
         }
 
         function updateClouds(dt, check) {
+            const FADE_START = 60; // começa bem mais longe
+            const FADE_END = 25;   // termina mais longe também
+            const DITHER_LEVELS = 8; // quantos degraus de opacidade (simula dithering discreto)
+
             for (let i = clouds.length - 1; i >= 0; i--) {
-                const c = clouds[i]; c.position.z += 18 * dt;
+                const c = clouds[i];
+                c.position.z += 18 * dt;
+
+                // ── Proximidade à câmera ──────────────────────────────
+                const dist = c.position.distanceTo(camera.position);
+                let proximityAlpha = 1.0;
+                if (dist < FADE_START) {
+                    const t = Math.max(0, (dist - FADE_END) / (FADE_START - FADE_END));
+                    // Dithering: quantiza t em DITHER_LEVELS degraus
+                    const dithered = Math.round(t * DITHER_LEVELS) / DITHER_LEVELS;
+                    proximityAlpha = dithered;
+                }
+
+                // Aplica opacidade final em todas as meshes da nuvem
+                const finalOpacity = c.userData.baseOpacity * proximityAlpha;
+                c.traverse(child => {
+                    if (child.isMesh && child.material && child.material.transparent) {
+                        child.material.opacity = finalOpacity;
+                        // Esconde completamente quando praticamente invisível (evita artefato de depth)
+                        child.visible = finalOpacity > 0.04;
+                    }
+                });
+
+                // ── Dano de nuvem de tempestade ───────────────────────
                 if (check && c.userData.isStorm && player) {
                     if (c.position.distanceTo(player.position) < c.userData.radius + player.userData.radius) {
                         if (pwShield > 0) { }
                         else { takeDamage(.7); player.rotation.z += (Math.random() - .5) * .25; }
                     }
                 }
+
                 if (c.position.z > 140) { scene.remove(c); clouds.splice(i, 1); }
             }
         }
